@@ -1,0 +1,3 @@
+# Delivery / build artifacts
+*.zip
+.DS_Store
