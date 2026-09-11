@@ -1,0 +1,398 @@
+/* ==========================================================================
+   Rizwan Stationers — Book Unboxing / Review section
+   FULLY ISOLATED. Every rule is scoped under .rz-book-unbox — no global
+   selectors, no element selectors that leak outside the namespace.
+   Flow: closed box → closer → seal splits → flaps open → book rises →
+   subtle 3D rotation → focus → name / price / SHOP NOW → book exits.
+   ========================================================================== */
+
+.rz-book-unbox {
+  /* geometry (px) — kept in sync with book-unbox.js.
+     Box is intentionally taller than the book so the book hides inside
+     before it rises out through the opened top. */
+  --rzbu-bw: 328;      /* box width  */
+  --rzbu-bh: 388;      /* box height */
+  --rzbu-bd: 150;      /* box depth  */
+  --rzbu-kw: 250;      /* book cover width  */
+  --rzbu-kh: 348;      /* book cover height */
+  --rzbu-kt: 40;       /* book thickness    */
+
+  /* animated hinge angles (deg) — driven by JS */
+  --rzbu-flap-front: 92;
+  --rzbu-flap-back: -92;
+  --rzbu-flap-left: 90;
+  --rzbu-flap-right: 90;
+
+  /* palette (scoped) */
+  --rzbu-paper: #efe8dc;
+  --rzbu-paper-2: #e3d8c6;
+  --rzbu-ink: #1b1712;
+  --rzbu-ink-2: #5b5346;
+  --rzbu-ink-3: #8f8677;
+  --rzbu-brass: #a6772e;
+  --rzbu-kraft-1: #c79b68;   /* lit cardboard   */
+  --rzbu-kraft-2: #b2854f;   /* mid cardboard   */
+  --rzbu-kraft-3: #8f6437;   /* shaded cardboard*/
+  --rzbu-kraft-in: #6f4f2c;  /* interior        */
+
+  --rzbu-ease: cubic-bezier(.16,.84,.3,1);
+
+  position: relative;
+  width: 100%;
+  color: var(--rzbu-ink);
+  background:
+    radial-gradient(120% 80% at 50% 12%, #fbf7f0 0%, rgba(251,247,240,0) 55%),
+    linear-gradient(180deg, var(--rzbu-paper) 0%, var(--rzbu-paper-2) 100%);
+  font-family: "Manrope", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.rz-book-unbox *,
+.rz-book-unbox *::before,
+.rz-book-unbox *::after { box-sizing: border-box; }
+
+/* ---- the pinned viewport ---- */
+.rz-book-unbox__stage {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1600px;
+  perspective-origin: 50% 42%;
+}
+
+/* soft studio floor + vignette (scoped) */
+.rz-book-unbox__floor {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 42% at 50% 78%, rgba(23,19,14,.14), rgba(23,19,14,0) 60%),
+    radial-gradient(120% 90% at 50% 120%, rgba(23,19,14,.10), rgba(23,19,14,0) 60%);
+}
+
+/* the 3D group the "camera" moves */
+.rz-book-unbox__scene {
+  position: relative;
+  width: 1px; height: 1px;         /* zero-size anchor; children are absolute */
+  transform-style: preserve-3d;
+  transform: rotateX(14deg) translateY(18px) scale(1);
+  will-change: transform;
+}
+
+/* ======================= BOX ======================= */
+.rz-book-unbox__box {
+  position: absolute; left: 0; top: 0;
+  width: calc(var(--rzbu-bw) * 1px);
+  height: calc(var(--rzbu-bh) * 1px);
+  margin-left: calc(var(--rzbu-bw) * -0.5px);
+  margin-top: calc(var(--rzbu-bh) * -0.5px);
+  transform-style: preserve-3d;
+  transform: translateY(6px);
+  will-change: transform;
+}
+.rzbu-face {
+  position: absolute; left: 50%; top: 50%;
+  width: calc(var(--rzbu-bw) * 1px);
+  height: calc(var(--rzbu-bh) * 1px);
+  backface-visibility: hidden;
+}
+.rzbu-face--front {
+  transform: translate(-50%,-50%) translateZ(calc(var(--rzbu-bd) * 0.5px));
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.16)),
+    linear-gradient(90deg, var(--rzbu-kraft-2), var(--rzbu-kraft-1) 45%, var(--rzbu-kraft-3));
+  box-shadow: inset 0 0 40px rgba(0,0,0,.14);
+}
+.rzbu-face--back {
+  transform: translate(-50%,-50%) rotateY(180deg) translateZ(calc(var(--rzbu-bd) * 0.5px));
+  background: var(--rzbu-kraft-3);
+}
+.rzbu-face--left {
+  width: calc(var(--rzbu-bd) * 1px);
+  transform: translate(-50%,-50%) rotateY(-90deg) translateZ(calc(var(--rzbu-bw) * 0.5px));
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.22), rgba(0,0,0,0)),
+    var(--rzbu-kraft-3);
+}
+.rzbu-face--right {
+  width: calc(var(--rzbu-bd) * 1px);
+  transform: translate(-50%,-50%) rotateY(90deg) translateZ(calc(var(--rzbu-bw) * 0.5px));
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.10), rgba(0,0,0,.18)),
+    var(--rzbu-kraft-2);
+}
+/* interior walls (seen through the open top) */
+.rzbu-face--inback {
+  transform: translate(-50%,-50%) translateZ(calc(var(--rzbu-bd) * -0.5px + 2px));
+  background: linear-gradient(180deg, #5c4025, var(--rzbu-kraft-in));
+  box-shadow: inset 0 30px 40px -20px rgba(0,0,0,.5);
+}
+.rzbu-face--floor {
+  height: calc(var(--rzbu-bd) * 1px);
+  transform: translate(-50%,-50%) rotateX(90deg) translateZ(calc(var(--rzbu-bh) * -0.5px));
+  background: radial-gradient(80% 80% at 50% 40%, #6a4b2b, #4e371f);
+}
+
+/* the four opening flaps */
+.rzbu-flap {
+  position: absolute; left: 50%; top: 50%;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.14)),
+    linear-gradient(90deg, var(--rzbu-kraft-2), var(--rzbu-kraft-1) 50%, var(--rzbu-kraft-2));
+  box-shadow: inset 0 0 26px rgba(0,0,0,.16);
+  backface-visibility: hidden;
+}
+.rzbu-flap--front {
+  width: calc(var(--rzbu-bw) * 1px);
+  height: calc(var(--rzbu-bd) * 0.5px + 2px);
+  margin-left: calc(var(--rzbu-bw) * -0.5px);
+  transform-origin: 50% 0%;
+  transform:
+    translateY(calc(var(--rzbu-bh) * -0.5px))
+    translateZ(calc(var(--rzbu-bd) * 0.5px))
+    rotateX(calc(var(--rzbu-flap-front) * 1deg));
+}
+.rzbu-flap--back {
+  width: calc(var(--rzbu-bw) * 1px);
+  height: calc(var(--rzbu-bd) * 0.5px + 2px);
+  margin-left: calc(var(--rzbu-bw) * -0.5px);
+  transform-origin: 50% 0%;
+  transform:
+    translateY(calc(var(--rzbu-bh) * -0.5px))
+    translateZ(calc(var(--rzbu-bd) * -0.5px))
+    rotateX(calc(var(--rzbu-flap-back) * 1deg));
+}
+.rzbu-flap--left {
+  width: calc(var(--rzbu-bd) * 1px);
+  height: calc(var(--rzbu-bw) * 0.5px + 2px);
+  margin-left: calc(var(--rzbu-bd) * -0.5px);
+  transform-origin: 50% 0%;
+  transform:
+    translateY(calc(var(--rzbu-bh) * -0.5px))
+    rotateY(-90deg)
+    translateZ(calc(var(--rzbu-bw) * 0.5px))
+    rotateX(calc(var(--rzbu-flap-left) * 1deg));
+  filter: brightness(.9);
+}
+.rzbu-flap--right {
+  width: calc(var(--rzbu-bd) * 1px);
+  height: calc(var(--rzbu-bw) * 0.5px + 2px);
+  margin-left: calc(var(--rzbu-bd) * -0.5px);
+  transform-origin: 50% 0%;
+  transform:
+    translateY(calc(var(--rzbu-bh) * -0.5px))
+    rotateY(90deg)
+    translateZ(calc(var(--rzbu-bw) * 0.5px))
+    rotateX(calc(var(--rzbu-flap-right) * 1deg));
+  filter: brightness(.94);
+}
+
+/* packing-tape seal across the seam (two halves that part) */
+.rzbu-seal {
+  position: absolute; left: 50%; top: 50%;
+  width: calc(var(--rzbu-bw) * 0.34px);
+  height: calc(var(--rzbu-bd) * 0.5px);
+  margin-left: calc(var(--rzbu-bw) * -0.17px);
+  background: linear-gradient(180deg, rgba(214,196,150,.85), rgba(196,174,120,.8));
+  box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 0 0 1px rgba(255,255,255,.25);
+  opacity: .9;
+}
+.rzbu-seal--front {
+  transform-origin: 50% 0%;
+  transform: translateY(calc(var(--rzbu-bh) * -0.5px + 1px)) translateZ(calc(var(--rzbu-bd) * 0.5px)) rotateX(90deg);
+}
+.rzbu-seal--back {
+  transform-origin: 50% 0%;
+  transform: translateY(calc(var(--rzbu-bh) * -0.5px + 1px)) translateZ(calc(var(--rzbu-bd) * -0.5px)) rotateX(90deg);
+}
+
+/* contact shadow under the box */
+.rz-book-unbox__boxshadow {
+  position: absolute; left: 50%; top: 50%;
+  width: calc(var(--rzbu-bw) * 1.15px);
+  height: calc(var(--rzbu-bd) * 1.05px);
+  margin-left: calc(var(--rzbu-bw) * -0.575px);
+  transform: translateY(calc(var(--rzbu-bh) * 0.5px + 4px)) rotateX(90deg);
+  background: radial-gradient(closest-side, rgba(0,0,0,.42), rgba(0,0,0,0) 72%);
+  filter: blur(6px);
+}
+
+/* ======================= BOOK ======================= */
+.rz-book-unbox__book {
+  position: absolute; left: 0; top: 0;
+  margin-left: calc(var(--rzbu-kw) * -0.5px);
+  margin-top: calc(var(--rzbu-kh) * -0.5px);
+  transform-style: preserve-3d;
+  transform: translateY(calc(var(--rzbu-kh) * 0.5px + var(--rzbu-bh) * 0.1px)) scale(.9);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.rzbu-book__wrap {
+  position: relative;
+  width: calc(var(--rzbu-kw) * 1px);
+  height: calc(var(--rzbu-kh) * 1px);
+  transform-style: preserve-3d;
+  transform: rotateY(-24deg) rotateX(3deg);
+  will-change: transform;
+}
+.rzbu-book__face {
+  position: absolute; inset: 0;
+  border-radius: 5px 10px 10px 5px;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+.rzbu-book__cover {
+  transform: translateZ(calc(var(--rzbu-kt) * 0.5px));
+  background: #2a2622;
+  box-shadow: 0 30px 60px -24px rgba(0,0,0,.6), inset 0 0 0 1px rgba(0,0,0,.25);
+}
+.rzbu-book__img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  display: block;
+}
+.rzbu-book__cover::after {  /* realistic top-light + edge */
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background:
+    linear-gradient(125deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 34%),
+    linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(0,0,0,.22));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+  pointer-events: none;
+}
+.rzbu-book__back {
+  transform: rotateY(180deg) translateZ(calc(var(--rzbu-kt) * 0.5px));
+  background: linear-gradient(90deg, #201d19, #2c2823);
+}
+.rzbu-book__pages {   /* fore-edge — the stacked paper */
+  position: absolute; top: 0; right: 0;
+  width: calc(var(--rzbu-kt) * 1px);
+  height: calc(var(--rzbu-kh) * 1px);
+  transform-origin: right center;
+  transform: rotateY(90deg);
+  background: repeating-linear-gradient(180deg, #f6f1e6 0 2px, #d9cfba 2px 3px);
+  box-shadow: inset 0 0 8px rgba(0,0,0,.2);
+}
+.rzbu-book__spine {   /* left edge / binding */
+  position: absolute; top: 0; left: 0;
+  width: calc(var(--rzbu-kt) * 1px);
+  height: calc(var(--rzbu-kh) * 1px);
+  transform-origin: left center;
+  transform: rotateY(-90deg);
+  background: linear-gradient(180deg, #262019, #171310);
+  box-shadow: inset 0 0 10px rgba(0,0,0,.4);
+}
+.rzbu-book__top {   /* top edge */
+  position: absolute; top: 0; left: 0;
+  width: calc(var(--rzbu-kw) * 1px);
+  height: calc(var(--rzbu-kt) * 1px);
+  transform-origin: top center;
+  transform: rotateX(-90deg);
+  background: repeating-linear-gradient(90deg, #f2ecdf 0 2px, #ddd2bd 2px 3px);
+}
+/* soft shadow that travels under the risen book */
+.rz-book-unbox__bookshadow {
+  position: absolute; left: 0; top: 0;
+  width: calc(var(--rzbu-kw) * 1.1px);
+  height: 30px;
+  margin-left: calc(var(--rzbu-kw) * -0.55px);
+  transform: translateY(calc(var(--rzbu-kh) * 0.5px + 14px));
+  background: radial-gradient(closest-side, rgba(0,0,0,.4), rgba(0,0,0,0) 74%);
+  filter: blur(7px);
+  opacity: 0;
+}
+
+/* ======================= INFO / CTA ======================= */
+.rz-book-unbox__info {
+  position: absolute; z-index: 6;
+  left: 50%; bottom: 8%;
+  width: min(560px, 86vw);
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+.rzbu-info__label {
+  margin: 0 0 12px;
+  font-size: 12px; font-weight: 600; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--rzbu-brass);
+  opacity: 0; transform: translateY(14px);
+}
+.rzbu-info__name {
+  margin: 0; font-size: clamp(26px, 4vw, 44px); font-weight: 800;
+  letter-spacing: -.02em; line-height: 1.02; color: var(--rzbu-ink);
+  opacity: 0; transform: translateY(16px);
+}
+.rzbu-info__desc {
+  margin: 14px auto 0; max-width: 46ch;
+  font-size: clamp(14px, 1.4vw, 16px); line-height: 1.5; color: var(--rzbu-ink-2);
+  opacity: 0; transform: translateY(16px);
+}
+.rzbu-info__price {
+  margin: 18px 0 0; font-size: 20px; font-weight: 700; color: var(--rzbu-ink);
+  opacity: 0; transform: translateY(16px);
+}
+.rzbu-info__cta {
+  display: inline-flex; align-items: center; gap: .5em; margin-top: 22px;
+  padding: 15px 30px; border-radius: 999px;
+  background: var(--rzbu-ink); color: var(--rzbu-paper);
+  font-weight: 700; font-size: 15px; letter-spacing: .01em; text-decoration: none;
+  box-shadow: 0 14px 34px -14px rgba(23,19,14,.6);
+  opacity: 0; transform: translateY(16px);
+  pointer-events: auto;
+  transition: transform .35s var(--rzbu-ease), box-shadow .35s var(--rzbu-ease);
+}
+.rzbu-info__cta:hover { transform: translateY(-2px); box-shadow: 0 20px 42px -16px rgba(23,19,14,.6); }
+.rzbu-info__cta .rzbu-arrow { transition: transform .35s var(--rzbu-ease); }
+.rzbu-info__cta:hover .rzbu-arrow { transform: translateX(5px); }
+
+/* scroll hint */
+.rz-book-unbox__hint {
+  position: absolute; z-index: 6; left: 50%; bottom: 26px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--rzbu-ink-3);
+}
+.rzbu-hint__track { position: relative; width: 22px; height: 36px; border: 1.5px solid rgba(23,19,14,.2); border-radius: 999px; }
+.rzbu-hint__dot { position: absolute; left: 50%; top: 7px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--rzbu-ink-2); animation: rzbu-dot 1.8s var(--rzbu-ease) infinite; }
+@keyframes rzbu-dot { 0%{transform:translateY(0);opacity:0} 30%{opacity:1} 70%{opacity:1} 100%{transform:translateY(15px);opacity:0} }
+
+/* ======================= RESPONSIVE ======================= */
+@media (max-width: 720px) {
+  .rz-book-unbox {
+    --rzbu-bw: 248; --rzbu-bh: 300; --rzbu-bd: 120;
+    --rzbu-kw: 188; --rzbu-kh: 262; --rzbu-kt: 30;
+  }
+  .rz-book-unbox__info { bottom: 6%; }
+}
+
+/* ======================= STATIC FALLBACK =======================
+   Reduced motion OR no GSAP: no pin, no 3D animation — a clean, fully
+   readable, shoppable card. Book shown flat, box hidden, CTA active. */
+.rz-book-unbox.rzbu-static .rz-book-unbox__stage {
+  height: auto; min-height: 0; display: block; perspective: none;
+  padding: clamp(48px, 8vh, 96px) 20px;
+}
+.rz-book-unbox.rzbu-static .rz-book-unbox__scene { display: none; }
+.rz-book-unbox.rzbu-static .rz-book-unbox__hint { display: none; }
+.rz-book-unbox.rzbu-static .rz-book-unbox__floor { display: none; }
+.rz-book-unbox.rzbu-static .rz-book-unbox__info {
+  position: relative; left: auto; bottom: auto; transform: none;
+  margin: 0 auto; display: flex; flex-direction: column; align-items: center;
+}
+.rz-book-unbox.rzbu-static .rzbu-static-book {
+  display: block; width: min(280px, 70vw); margin: 0 auto 30px;
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 30px 60px -24px rgba(23,19,14,.5);
+}
+.rz-book-unbox.rzbu-static .rzbu-info__label,
+.rz-book-unbox.rzbu-static .rzbu-info__name,
+.rz-book-unbox.rzbu-static .rzbu-info__desc,
+.rz-book-unbox.rzbu-static .rzbu-info__price,
+.rz-book-unbox.rzbu-static .rzbu-info__cta { opacity: 1; transform: none; }
+
+/* the static flat cover image is only rendered/visible in fallback mode */
+.rzbu-static-book { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rz-book-unbox__hint .rzbu-hint__dot { animation: none; }
+}

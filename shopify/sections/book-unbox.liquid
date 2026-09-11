@@ -1,0 +1,106 @@
+{%- comment -%}
+  Rizwan Stationers — Book Unboxing / Review (Shopify section)
+
+  Completely isolated. Namespaced .rz-book-unbox — touches no header, footer,
+  hero, product grid, cart, or global styles. Pick ONE product (a book /
+  notebook) in the theme editor; its title, price, image and URL fill the scene.
+
+  INSTALL (flat asset names, like the hero section):
+    assets/css/book-unbox.css -> assets/rzbu-book-unbox.css
+    assets/js/book-unbox.js   -> assets/rzbu-book-unbox.js
+    (reuse rizwan-gsap.min.js + rizwan-scrolltrigger.min.js, or load GSAP your way)
+{%- endcomment -%}
+
+{{ 'rzbu-book-unbox.css' | asset_url | stylesheet_tag }}
+
+{%- assign p = section.settings.product -%}
+{%- if p != blank -%}
+  {%- assign rzbu_name  = p.title -%}
+  {%- assign rzbu_price = p.price | money -%}
+  {%- assign rzbu_url   = p.url -%}
+  {%- assign rzbu_img   = p.featured_image | image_url: width: 720 -%}
+  {%- assign rzbu_desc  = section.settings.desc | default: p.description | strip_html | truncatewords: 26 -%}
+{%- else -%}
+  {%- assign rzbu_name  = 'Log Book — Large' -%}
+  {%- assign rzbu_price = 'Rs. 450' -%}
+  {%- assign rzbu_url   = routes.all_products_collection_url -%}
+  {%- assign rzbu_img   = '' -%}
+  {%- assign rzbu_desc  = 'Select a product in the theme editor to feature it here.' -%}
+{%- endif -%}
+
+<section class="rz-book-unbox" aria-label="{{ rzbu_name | escape }} unboxing">
+  <div class="rz-book-unbox__stage" data-rz-stage>
+    <div class="rz-book-unbox__floor" aria-hidden="true"></div>
+
+    <div class="rz-book-unbox__scene" data-rz-scene aria-hidden="true">
+      <div class="rz-book-unbox__boxshadow"></div>
+
+      <div class="rz-book-unbox__box" data-rz-box>
+        <div class="rzbu-face rzbu-face--inback"></div>
+        <div class="rzbu-face rzbu-face--floor"></div>
+        <div class="rzbu-face rzbu-face--back"></div>
+        <div class="rzbu-face rzbu-face--left"></div>
+        <div class="rzbu-face rzbu-face--right"></div>
+        <div class="rzbu-flap rzbu-flap--back"></div>
+        <div class="rzbu-flap rzbu-flap--left"></div>
+        <div class="rzbu-flap rzbu-flap--right"></div>
+        <div class="rzbu-flap rzbu-flap--front"></div>
+        <div class="rzbu-seal rzbu-seal--front"></div>
+        <div class="rzbu-seal rzbu-seal--back"></div>
+        <div class="rzbu-face rzbu-face--front"></div>
+      </div>
+
+      <div class="rz-book-unbox__bookshadow" data-rz-bookshadow></div>
+
+      <div class="rz-book-unbox__book" data-rz-book>
+        <div class="rzbu-book__wrap" data-rz-bookwrap>
+          <div class="rzbu-book__face rzbu-book__back"></div>
+          <div class="rzbu-book__spine"></div>
+          <div class="rzbu-book__pages"></div>
+          <div class="rzbu-book__top"></div>
+          <div class="rzbu-book__face rzbu-book__cover">
+            {%- if rzbu_img != blank -%}
+              <img class="rzbu-book__img" src="{{ rzbu_img }}" alt="{{ rzbu_name | escape }}" loading="lazy" decoding="async" />
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {%- if rzbu_img != blank -%}
+      <img class="rzbu-static-book" src="{{ rzbu_img }}" alt="{{ rzbu_name | escape }}" loading="lazy" decoding="async" />
+    {%- endif -%}
+
+    <div class="rz-book-unbox__info" data-rz-info>
+      <p class="rzbu-info__label" data-rz-label>{{ section.settings.label | escape }}</p>
+      <h3 class="rzbu-info__name" data-rz-name>{{ rzbu_name | escape }}</h3>
+      <p class="rzbu-info__desc" data-rz-desc>{{ rzbu_desc | escape }}</p>
+      <p class="rzbu-info__price" data-rz-price>{{ rzbu_price }}</p>
+      <a class="rzbu-info__cta" data-rz-cta href="{{ rzbu_url }}">
+        {{ section.settings.cta | escape }} <span class="rzbu-arrow">&rarr;</span>
+      </a>
+    </div>
+
+    <div class="rz-book-unbox__hint" data-rz-hint aria-hidden="true">
+      <span>Scroll to open</span>
+      <span class="rzbu-hint__track"><span class="rzbu-hint__dot"></span></span>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'rizwan-gsap.min.js' | asset_url }}" defer></script>
+<script src="{{ 'rizwan-scrolltrigger.min.js' | asset_url }}" defer></script>
+<script src="{{ 'rzbu-book-unbox.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Book Unboxing",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Book / notebook to feature" },
+    { "type": "text", "id": "label", "label": "Eyebrow label", "default": "Unboxing" },
+    { "type": "textarea", "id": "desc", "label": "Short description", "info": "Leave blank to use the product description" },
+    { "type": "text", "id": "cta", "label": "Button text", "default": "Shop now" }
+  ],
+  "presets": [{ "name": "Book Unboxing" }]
+}
+{% endschema %}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rizwan Stationers — Book Unboxing (isolated section demo)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
+
+  <!-- the isolated section stylesheet -->
+  <link rel="stylesheet" href="assets/css/book-unbox.css" />
+
+  <!-- harness-only page styles (NOT part of the section; scoped to this demo page) -->
+  <style>
+    html, body { margin: 0; background: #efe8dc; }
+    .rzbu-demo-spacer {
+      min-height: 46vh; display: flex; align-items: center; justify-content: center;
+      color: #8f8677; font: 600 12px/1 "Manrope", system-ui, sans-serif;
+      letter-spacing: .26em; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="rzbu-demo-spacer">Demo · scroll down ↓</div>
+
+  <!-- ================= ISOLATED SECTION START ================= -->
+  <section class="rz-book-unbox" aria-label="Log Book unboxing">
+    <div class="rz-book-unbox__stage" data-rz-stage>
+      <div class="rz-book-unbox__floor" aria-hidden="true"></div>
+
+      <div class="rz-book-unbox__scene" data-rz-scene aria-hidden="true">
+        <div class="rz-book-unbox__boxshadow"></div>
+
+        <div class="rz-book-unbox__box" data-rz-box>
+          <div class="rzbu-face rzbu-face--inback"></div>
+          <div class="rzbu-face rzbu-face--floor"></div>
+          <div class="rzbu-face rzbu-face--back"></div>
+          <div class="rzbu-face rzbu-face--left"></div>
+          <div class="rzbu-face rzbu-face--right"></div>
+          <div class="rzbu-flap rzbu-flap--back"></div>
+          <div class="rzbu-flap rzbu-flap--left"></div>
+          <div class="rzbu-flap rzbu-flap--right"></div>
+          <div class="rzbu-flap rzbu-flap--front"></div>
+          <div class="rzbu-seal rzbu-seal--front"></div>
+          <div class="rzbu-seal rzbu-seal--back"></div>
+          <div class="rzbu-face rzbu-face--front"></div>
+        </div>
+
+        <div class="rz-book-unbox__bookshadow" data-rz-bookshadow></div>
+
+        <div class="rz-book-unbox__book" data-rz-book>
+          <div class="rzbu-book__wrap" data-rz-bookwrap>
+            <div class="rzbu-book__face rzbu-book__back"></div>
+            <div class="rzbu-book__spine"></div>
+            <div class="rzbu-book__pages"></div>
+            <div class="rzbu-book__top"></div>
+            <div class="rzbu-book__face rzbu-book__cover">
+              <img class="rzbu-book__img"
+                   src="https://cdn.shopify.com/s/files/1/1013/5194/8581/files/Open_log_book_on_desk_202609071505.jpg?v=1788775555&width=720"
+                   alt="Log Book — Large" loading="lazy" decoding="async" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- flat cover shown only in the reduced-motion / no-GSAP fallback -->
+      <img class="rzbu-static-book"
+           src="https://cdn.shopify.com/s/files/1/1013/5194/8581/files/Open_log_book_on_desk_202609071505.jpg?v=1788775555&width=720"
+           alt="Log Book — Large" loading="lazy" decoding="async" />
+
+      <div class="rz-book-unbox__info" data-rz-info>
+        <p class="rzbu-info__label" data-rz-label>Unboxing</p>
+        <h3 class="rzbu-info__name" data-rz-name>Log Book — Large</h3>
+        <p class="rzbu-info__desc" data-rz-desc>A durable large-format log book for daily records, attendance and notes — sewn binding and smooth paper that keeps its edge.</p>
+        <p class="rzbu-info__price" data-rz-price>Rs.&nbsp;450</p>
+        <a class="rzbu-info__cta" data-rz-cta href="https://rizwanstationers.com/products/log-book-large">
+          Shop now <span class="rzbu-arrow">&rarr;</span>
+        </a>
+      </div>
+
+      <div class="rz-book-unbox__hint" data-rz-hint aria-hidden="true">
+        <span>Scroll to open</span>
+        <span class="rzbu-hint__track"><span class="rzbu-hint__dot"></span></span>
+      </div>
+    </div>
+  </section>
+  <!-- ================= ISOLATED SECTION END ================= -->
+
+  <div class="rzbu-demo-spacer">End of demo</div>
+
+  <!-- reuse the project's existing GSAP -->
+  <script src="assets/vendor/gsap.min.js" defer></script>
+  <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="assets/js/book-unbox.js" defer></script>
+</body>
+</html>

@@ -74,6 +74,23 @@ theme editor.
 
 ---
 
+## Optional — the Book Unboxing section
+
+A second, fully isolated section (`.rz-book-unbox`) that plays a scroll-driven
+3D unboxing for a single book/notebook.
+
+1. Upload `shopify/assets/rzbu-book-unbox.css` and `rzbu-book-unbox.js` to
+   **Assets** (it reuses the same `rizwan-gsap*.js` you already uploaded).
+2. Add `shopify/sections/book-unbox.liquid` to **Sections**.
+3. In **Customize**, add the **Book Unboxing** section wherever you want it,
+   then pick a book/notebook product. Its title, price, image and link fill the
+   scene automatically. Optionally set an eyebrow label, a short description and
+   the button text.
+
+It's self-contained — it doesn't affect the hero or any other section.
+
+---
+
 ### Notes & troubleshooting
 - **Product images are your own** — they come straight from each product's
   featured image, so hover links go to the real product pages and prices show in
