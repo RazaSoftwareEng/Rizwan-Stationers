@@ -1,0 +1,125 @@
+{%- comment -%}
+  Rizwan Stationers — Cinematic Hero (Shopify section)
+
+  Drop-in port of the standalone experience for the live Shopify theme.
+  The merchant picks real products in the theme editor; this section feeds
+  their title / price / URL / image into the same engine that powers the
+  standalone build, so the scroll film shows genuine catalogue products with
+  working "View product" links.
+
+  INSTALL
+  -------
+  1. Copy the three assets into the theme's (flat) assets/ folder, renamed:
+        assets/css/hero.css   ->  assets/rizwan-hero.css
+        assets/js/products.js ->  assets/rizwan-products.js
+        assets/js/hero.js     ->  assets/rizwan-hero.js
+     …and vendor GSAP the same way (rizwan-gsap.min.js, rizwan-scrolltrigger.min.js)
+     or load it from your preferred CDN.
+  2. Add this section to the homepage (Online Store → Customize) and pick
+     5–7 products, anchor product first.
+{%- endcomment -%}
+
+{{ 'rizwan-hero.css' | asset_url | stylesheet_tag }}
+
+<section class="stage" id="stage" aria-label="{{ section.settings.heading | escape }}">
+  <div class="stage__viewport" id="viewport">
+    <div class="atmos" id="atmos" aria-hidden="true"></div>
+    <div class="room" id="room" aria-hidden="true"></div>
+    <div class="deskSurface" id="deskSurface" aria-hidden="true">
+      <div class="deskSurface__grain"></div><div class="deskSurface__light"></div>
+    </div>
+
+    <div class="hero" id="hero">
+      <p class="hero__label reveal">{{ section.settings.brand_label | escape }}</p>
+      <h1 class="hero__title">
+        {%- assign lines = section.settings.heading | newline_to_br | split: '<br />' -%}
+        {%- for l in lines -%}<span class="line"><span>{{ l | strip }}</span></span>{%- endfor -%}
+      </h1>
+      <p class="hero__sub reveal">{{ section.settings.subcopy | escape }}</p>
+      <div class="hero__cta reveal">
+        <a class="btn btn--solid" href="{{ section.settings.cta_primary_link | default: routes.all_products_collection_url }}">
+          {{ section.settings.cta_primary | escape }} <span class="btn__arrow">&rarr;</span>
+        </a>
+        <a class="btn btn--ghost" href="{{ section.settings.cta_secondary_link | default: routes.all_products_collection_url }}">
+          {{ section.settings.cta_secondary | escape }}
+        </a>
+      </div>
+    </div>
+
+    <div class="scene" id="scene"></div>
+
+    <div class="deskCopy deskCopy--intro" id="deskIntro" aria-hidden="true">
+      <h2>{{ section.settings.desk_intro | escape | newline_to_br }}</h2>
+      <p class="keepScrolling">Keep scrolling <span>&darr;</span></p>
+    </div>
+
+    <div class="deskCopy deskCopy--final" id="deskFinal" aria-hidden="true">
+      <h2>{{ section.settings.desk_final | escape | newline_to_br }}</h2>
+      <a class="btn btn--solid btn--lg" href="{{ section.settings.desk_cta_link | default: routes.all_products_collection_url }}">
+        {{ section.settings.desk_cta | escape }} <span class="btn__arrow">&rarr;</span>
+      </a>
+    </div>
+
+    <div class="scrollHint" id="scrollHint" aria-hidden="true">
+      <span>Scroll to explore</span>
+      <span class="scrollHint__track"><span class="scrollHint__dot"></span></span>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.RS_PRODUCTS = [
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'product' and block.settings.product != blank -%}
+        {%- assign p = block.settings.product -%}
+        {
+          "id": {{ p.handle | json }},
+          "name": {{ p.title | json }},
+          "blurb": {{ block.settings.blurb | default: p.type | json }},
+          "price": {{ p.price | divided_by: 100.0 | json }},
+          "handle": {{ p.handle | json }},
+          "img": {{ p.featured_image | image_url: width: 720 | json }}
+        }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+  ];
+</script>
+
+<script src="{{ 'rizwan-gsap.min.js' | asset_url }}" defer></script>
+<script src="{{ 'rizwan-scrolltrigger.min.js' | asset_url }}" defer></script>
+<script src="{{ 'rizwan-products.js' | asset_url }}" defer></script>
+<script src="{{ 'rizwan-hero.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Cinematic Hero",
+  "settings": [
+    { "type": "text",     "id": "brand_label",      "label": "Brand label",   "default": "Rizwan Stationers" },
+    { "type": "textarea", "id": "heading",          "label": "Headline (one line per row)", "default": "Everything\nyour desk\nneeds." },
+    { "type": "textarea", "id": "subcopy",          "label": "Supporting copy", "default": "Stationery for ideas, work, study and everything in between." },
+    { "type": "text",     "id": "cta_primary",      "label": "Primary CTA",   "default": "Shop now" },
+    { "type": "url",      "id": "cta_primary_link", "label": "Primary CTA link" },
+    { "type": "text",     "id": "cta_secondary",    "label": "Secondary CTA", "default": "Explore collections" },
+    { "type": "url",      "id": "cta_secondary_link","label": "Secondary CTA link" },
+    { "type": "textarea", "id": "desk_intro",       "label": "Desk intro",    "default": "Your desk.\nYour ideas." },
+    { "type": "textarea", "id": "desk_final",       "label": "Desk final message", "default": "Everything you need.\nFor the way you work." },
+    { "type": "text",     "id": "desk_cta",         "label": "Desk CTA",      "default": "Shop the desk" },
+    { "type": "url",      "id": "desk_cta_link",    "label": "Desk CTA link" }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "text", "id": "blurb", "label": "Short blurb", "info": "One line shown on hover" }
+      ]
+    }
+  ],
+  "max_blocks": 7,
+  "presets": [{ "name": "Cinematic Hero", "blocks": [
+    {"type":"product"},{"type":"product"},{"type":"product"},
+    {"type":"product"},{"type":"product"},{"type":"product"},{"type":"product"}
+  ]}]
+}
+{% endschema %}
