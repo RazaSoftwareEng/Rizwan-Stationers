@@ -1,0 +1,273 @@
+/* ---- stage ---- */
+.desk__stage {
+  position: relative;
+  /* wide banner: full container width (the photo itself is ~2.4 : 1) */
+  margin: 0 auto;
+}
+.desk__photo {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  isolation: isolate;
+}
+.desk__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.desk__area {
+  position: absolute;
+  border-radius: 18px;
+  cursor: pointer;
+  transition:
+    box-shadow 0.35s var(--ease),
+    backdrop-filter 0.35s var(--ease);
+}
+/* glow: the product brightens, gets a gold halo, and the rest of the desk dims */
+.desk__area.is-active {
+  z-index: 2;
+  -webkit-backdrop-filter: brightness(1.14) saturate(1.2);
+  backdrop-filter: brightness(1.14) saturate(1.2);
+  box-shadow:
+    0 0 0 2px rgba(255, 236, 190, 0.95),
+    0 0 26px 6px rgba(240, 196, 110, 0.75),
+    0 0 70px 18px rgba(240, 196, 110, 0.35),
+    0 0 0 200vmax rgba(10, 18, 38, 0.46);
+}
+
+/* ---- pulsing dots ---- */
+.desk__dot {
+  position: absolute;
+  z-index: 4;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition:
+    transform 0.25s var(--ease),
+    opacity 0.25s var(--ease);
+}
+.desk__dot span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 4px var(--gold);
+  transition: box-shadow 0.25s var(--ease);
+}
+.desk__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  animation: desk-pulse 2.2s var(--ease) infinite;
+}
+@keyframes desk-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  80%,
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+.desk__dot:hover,
+.desk__dot.is-active {
+  transform: scale(1.15);
+}
+.desk__dot.is-active span {
+  box-shadow: inset 0 0 0 7px var(--navy);
+}
+.desk__stage.has-active .desk__dot:not(.is-active) {
+  opacity: 0.4;
+}
+
+/* ---- price tag that follows the cursor ---- */
+.desk__tag {
+  position: absolute;
+  z-index: 6;
+  display: grid;
+  gap: 2px;
+  min-width: 190px;
+  max-width: 250px;
+  padding: 12px 16px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(217, 191, 133, 0.6);
+  box-shadow: 0 20px 44px -16px rgba(10, 18, 38, 0.55);
+  pointer-events: none;
+  transform: translate(18px, 18px);
+  animation: desk-tag-in 0.2s var(--ease);
+}
+.desk__tag.flip-x {
+  transform: translate(calc(-100% - 18px), 18px);
+}
+.desk__tag.flip-y {
+  transform: translate(18px, calc(-100% - 18px));
+}
+.desk__tag.flip-x.flip-y {
+  transform: translate(calc(-100% - 18px), calc(-100% - 18px));
+}
+@keyframes desk-tag-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.desk__tag-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  color: var(--navy);
+}
+.desk__tag-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: -0.01em;
+}
+.desk__tag-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.desk__tag-hint .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--navy);
+}
+
+/* ---- touch: card under the photo ---- */
+.desk__card {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  margin: 14px auto 0;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  animation: desk-tag-in 0.25s var(--ease);
+}
+.desk__card-thumb {
+  width: 78px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.desk__card-body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.desk__card-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1.15;
+  color: var(--navy);
+  padding-right: 36px;
+}
+.desk__card-price {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.desk__card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.desk__card-add {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
+.desk__card-add .icon {
+  width: 15px;
+  height: 15px;
+}
+.desk__card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--navy);
+}
+.desk__card-link .icon {
+  width: 14px;
+  height: 14px;
+}
+.desk__card-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+}
+
+/* phones: keep the wide banner readable and let it scroll sideways */
+.desk__swipe {
+  display: none;
+}
+@media (max-width: 760px) {
+  .desk__scroll {
+    overflow-x: auto;
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0 var(--gutter) 18px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .desk__stage {
+    width: 720px;
+  }
+  .desk__swipe {
+    display: block;
+    margin-top: 4px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+}
+@media (max-width: 640px) {
+  .desk__dot {
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+  }
+  .desk__dot span {
+    width: 11px;
+    height: 11px;
+    box-shadow: inset 0 0 0 3px var(--gold);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .desk__dot::after {
+    animation: none;
+  }
+}

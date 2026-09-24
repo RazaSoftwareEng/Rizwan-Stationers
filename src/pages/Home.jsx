@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import BeforeAfter from "../components/BeforeAfter.jsx";
+import ShopTheDesk from "../components/ShopTheDesk.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import SubIcon from "../components/SubIcon.jsx";
 import Icon from "../components/Icon.jsx";
@@ -147,6 +148,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ---- shop the desk ---- */}
+      <ShopTheDesk />
 
       {/* ---- heritage ---- */}
       <section className="section section--paper">

@@ -3951,6 +3951,16 @@ a.mini-line__name:hover {
   }
 }
 
+/* real scene photos fill the frame */
+.card__art--photo {
+  overflow: hidden;
+}
+.card__art--photo img,
+.thumb--photo img {
+  object-fit: cover;
+  padding: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
