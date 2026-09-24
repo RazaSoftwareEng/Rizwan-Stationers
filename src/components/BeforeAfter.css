@@ -1,0 +1,151 @@
+.ba {
+  --pos: 50%;
+  position: relative;
+  width: min(100%, 1000px);
+  margin: 0 auto;
+  aspect-ratio: 1670 / 941;
+  border-radius: clamp(12px, 2vw, 22px);
+  overflow: hidden;
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.55);
+  outline: 1px solid rgba(217, 191, 133, 0.35);
+  outline-offset: 6px;
+  background: #e7ecf1;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: col-resize;
+  isolation: isolate;
+}
+.ba__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.ba__before {
+  z-index: 2;
+  clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+  transition: clip-path 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ba__pill {
+  position: absolute;
+  top: clamp(10px, 1.6vw, 18px);
+  right: clamp(10px, 1.6vw, 18px);
+  z-index: 4;
+  padding: 6px 15px;
+  border-radius: 999px;
+  background: #fff;
+  color: #16202e;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(0.78rem, 1.3vw, 0.95rem);
+  box-shadow: 0 4px 14px rgba(21, 34, 58, 0.16);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+/* the after photo carries its own label once it's mostly revealed */
+.ba.is-after-revealed .ba__pill {
+  opacity: 0;
+}
+.ba__divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  width: 3px;
+  margin-left: -1.5px;
+  background: #fff;
+  z-index: 3;
+  transition: left 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ba__handle {
+  position: absolute;
+  top: 50%;
+  left: var(--pos);
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  width: clamp(44px, 6vw, 56px);
+  height: clamp(44px, 6vw, 56px);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(21, 34, 58, 0.28);
+  display: grid;
+  place-items: center;
+  cursor: col-resize;
+  transition:
+    left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s ease;
+}
+.ba.is-dragging .ba__before,
+.ba.is-dragging .ba__divider {
+  transition: none;
+}
+.ba.is-dragging .ba__handle {
+  transition: transform 0.2s ease;
+}
+.ba__handle:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+}
+.ba__handle:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+.ba__bars {
+  width: 22px;
+  height: 22px;
+}
+.ba__bars rect {
+  fill: #14254a;
+}
+.ba__hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(12px, 2vw, 20px);
+  transform: translateX(-50%);
+  z-index: 4;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: rgba(21, 34, 58, 0.72);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.ba.is-interacted .ba__hint {
+  opacity: 0;
+}
+
+@media (max-width: 480px) {
+  .ba__pill {
+    padding: 4px 10px;
+    font-size: 0.72rem;
+  }
+  .ba__hint {
+    padding: 5px 11px;
+    font-size: 0.72rem;
+  }
+  .ba__bars {
+    width: 18px;
+    height: 18px;
+  }
+}
+@media (hover: none) {
+  .ba__handle:hover {
+    transform: translate(-50%, -50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ba__before,
+  .ba__divider,
+  .ba__handle {
+    transition: none !important;
+  }
+}
