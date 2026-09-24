@@ -1,0 +1,13 @@
+# Netlify: build the Vite app and serve the output from dist/
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Single-page app: let React Router handle every path (e.g. /shop, /product/…)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
