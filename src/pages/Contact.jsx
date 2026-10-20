@@ -1,9 +1,16 @@
 import { useState } from "react";
+import { useSeo, storeLd, breadcrumbLd } from "../seo.js";
 import PageHeader from "../components/PageHeader.jsx";
 import Icon from "../components/Icon.jsx";
 import { shop } from "../data/shop.js";
 
 export default function Contact() {
+  useSeo({
+    title: "Contact Us",
+    description:
+      "Call, WhatsApp or visit Rizwan Stationer in Main Urdu Bazar, Lahore. Send us your school or office list and we'll have it packed and ready.",
+    jsonLd: [storeLd(), breadcrumbLd([["Home", "/"], ["Contact", "/contact"]])],
+  });
   const [form, setForm] = useState({ name: "", phone: "", message: "" });
   const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 

@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { useCart, formatRs, MAX_QTY } from "../cart.jsx";
-import { categories } from "../data/products.js";
+import { categories, stockStatus } from "../data/products.js";
 import CategoryIcon from "./CategoryIcon.jsx";
 import Icon from "./Icon.jsx";
+import { flyToCart } from "../flyToCart.js";
 
 export default function ProductCard({ product }) {
   const { add, qtyOf, setQty, remove } = useCart();
@@ -11,6 +12,8 @@ export default function ProductCard({ product }) {
   const photo = product.cutout || product.images?.[0];
   const cut = !!product.cutout;
   const inCart = qtyOf(product.id);
+  const status = stockStatus(product);
+  const maxQty = product.stock == null ? MAX_QTY : Math.min(MAX_QTY, product.stock);
 
   return (
     <article className="card">
@@ -33,7 +36,10 @@ export default function ProductCard({ product }) {
         <h3 className="card__name">
           <Link to={url}>{product.name}</Link>
         </h3>
-        <p className="card__price">{formatRs(product.price)}</p>
+        <p className="card__price">
+          {formatRs(product.price)}
+          {status.kind !== "in" && <span className={`stock-badge stock-badge--${status.kind}`}>{status.label}</span>}
+        </p>
         {inCart ? (
           <div className="card__stepper" role="group" aria-label={`${product.name} quantity in cart`}>
             <button
@@ -46,14 +52,24 @@ export default function ProductCard({ product }) {
             <span aria-live="polite">
               {inCart} in cart
             </span>
-            <button type="button" aria-label="Increase quantity" onClick={() => add(product.id, 1, { silent: true })} disabled={inCart >= MAX_QTY}>
+            <button type="button" aria-label="Increase quantity" onClick={(e) => {
+                flyToCart(e.currentTarget.closest(".card").querySelector(".card__art img"));
+                add(product.id, 1, { silent: true });
+              }}
+              disabled={inCart >= maxQty}
+            >
               <Icon name="plus" />
             </button>
           </div>
         ) : (
-          <button className="btn btn--outline btn--block card__add" type="button" onClick={() => add(product.id)}>
+          <button className="btn btn--outline btn--block card__add" type="button" onClick={(e) => {
+              flyToCart(e.currentTarget.closest(".card").querySelector(".card__art img"));
+              add(product.id, 1, { silent: true });
+            }}
+            disabled={status.kind === "out"}
+          >
             <Icon name="bag" />
-            Add to cart
+            {status.kind === "out" ? "Out of stock" : "Add to cart"}
           </button>
         )}
       </div>

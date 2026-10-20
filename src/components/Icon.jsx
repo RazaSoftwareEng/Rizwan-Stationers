@@ -61,6 +61,12 @@ const icons = {
     </>
   ),
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  link: (
+    <>
+      <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+      <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+    </>
+  ),
   minus: <path d="M6 12h12" />,
   plus: <path d="M12 6v12M6 12h12" />,
   trash: (

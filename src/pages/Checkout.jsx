@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSeo } from "../seo.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart, formatRs, FREE_DELIVERY_FROM, saveOrder, loadCustomer, saveCustomer, forgetCustomer } from "../cart.jsx";
 import { shop } from "../data/shop.js";
@@ -36,6 +37,7 @@ function validate(f) {
 }
 
 export default function Checkout() {
+  useSeo({ title: "Checkout", description: "Checkout — Rizwan Stationer.", noindex: true });
   const { lines, total, reset } = useCart();
   const navigate = useNavigate();
   const [saved] = useState(loadCustomer);

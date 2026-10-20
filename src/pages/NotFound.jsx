@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import { useSeo } from "../seo.js";
 import PageHeader from "../components/PageHeader.jsx";
 
 export default function NotFound() {
+  useSeo({ title: "Page Not Found", description: "Page Not Found — Rizwan Stationer.", noindex: true });
   return (
     <>
       <PageHeader eyebrow="404" title="Page not found" />

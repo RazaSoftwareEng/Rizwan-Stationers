@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
+import { useSeo } from "../seo.js";
 import { formatRs, loadOrder } from "../cart.jsx";
 import { shop } from "../data/shop.js";
 import Icon from "../components/Icon.jsx";
@@ -17,6 +18,7 @@ export function orderWhatsAppLink(order) {
 }
 
 export default function OrderConfirmed() {
+  useSeo({ title: "Order Confirmed", description: "Order Confirmed — Rizwan Stationer.", noindex: true });
   const [params] = useSearchParams();
   const order = loadOrder(params.get("n"));
 

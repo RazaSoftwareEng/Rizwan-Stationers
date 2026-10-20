@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSeo } from "../seo.js";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCart, formatRs, loadOrders, loadOrder } from "../cart.jsx";
 import { shop } from "../data/shop.js";
@@ -19,6 +20,7 @@ function useReorder() {
 
 /* ---------- list ---------- */
 export default function Orders() {
+  useSeo({ title: "My Orders", description: "My Orders — Rizwan Stationer.", noindex: true });
   const [orders] = useState(loadOrders);
   const reorder = useReorder();
 
@@ -85,6 +87,7 @@ export default function Orders() {
 
 /* ---------- single order ---------- */
 export function OrderDetail() {
+  useSeo({ title: "Order Details", description: "Order Details — Rizwan Stationer.", noindex: true });
   const { number } = useParams();
   const order = loadOrder(number);
   const reorder = useReorder();

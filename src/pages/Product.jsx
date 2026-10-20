@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useSeo, absUrl, breadcrumbLd } from "../seo.js";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCart, formatRs, FREE_DELIVERY_FROM } from "../cart.jsx";
-import { categories, products } from "../data/products.js";
+import { categories, products, stockStatus } from "../data/products.js";
 import { shop } from "../data/shop.js";
+import { posts } from "../data/posts.js";
 import ProductCard from "../components/ProductCard.jsx";
 import CategoryIcon from "../components/CategoryIcon.jsx";
 import Icon from "../components/Icon.jsx";
+import { flyToCart } from "../flyToCart.js";
 import NotFound from "./NotFound.jsx";
 
 function Gallery({ product }) {
@@ -66,6 +69,53 @@ function Gallery({ product }) {
   );
 }
 
+const clip = (text, n) => (text.length <= n ? text : text.slice(0, text.lastIndexOf(" ", n - 1)) + "…");
+
+function productSeo(product) {
+  if (!product) return { title: "Page Not Found", description: "This product could not be found.", noindex: true };
+  const category = categories.find((c) => c.id === product.category);
+  const sub = category?.subs.find((s) => s.id === product.sub);
+  const path = `/product/${product.id}`;
+  const image = product.images?.[0] || product.cutout;
+  const inStock = product.stock == null || product.stock > 0;
+  return {
+    title: product.name,
+    description: clip(
+      `${product.name} — ${formatRs(product.price)} at Rizwan Stationer, Lahore. ${product.description || ""}`.trim(),
+      158,
+    ),
+    path,
+    image,
+    type: "product",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        sku: product.id,
+        description: product.description,
+        image: (product.images || [image]).filter(Boolean).map((src) => absUrl(src)),
+        category: [category?.name, sub?.name].filter(Boolean).join(" > "),
+        offers: {
+          "@type": "Offer",
+          url: absUrl(path),
+          priceCurrency: "PKR",
+          price: product.price,
+          availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          itemCondition: "https://schema.org/NewCondition",
+          seller: { "@type": "Organization", name: "Rizwan Stationer" },
+        },
+      },
+      breadcrumbLd([
+        ["Home", "/"],
+        [category.name, `/shop?cat=${category.id}`],
+        ...(sub ? [[sub.name, `/shop?cat=${category.id}&sub=${sub.id}`]] : []),
+        [product.name, path],
+      ]),
+    ],
+  };
+}
+
 export default function Product() {
   const { id } = useParams();
   const product = products.find((p) => p.id === id);
@@ -77,6 +127,8 @@ export default function Product() {
     setLocalQty(1);
   }, [id]);
 
+  useSeo(productSeo(product));
+
   if (!product) return <NotFound />;
 
   const category = categories.find((c) => c.id === product.category);
@@ -85,12 +137,24 @@ export default function Product() {
     .filter((p) => p.id !== product.id && p.category === product.category)
     .slice(0, 4);
   const inCart = lines.find((l) => l.product.id === product.id)?.qty || 0;
+  // an article that mentions this product, else one about its category
+  const guide =
+    posts.find((p) => JSON.stringify(p.body).includes(`(/product/${product.id})`)) ||
+    posts.find((p) => p.category === product.category);
+  const status = stockStatus(product);
+  const soldOut = status.kind === "out";
+  // how many more can go in the cart without exceeding stock
+  const maxQty = product.stock == null ? 99 : Math.max(0, product.stock - inCart);
+  const canBuy = !soldOut && maxQty > 0;
 
   function addToCart() {
-    add(product.id, qty);
+    if (!canBuy) return;
+    flyToCart(document.querySelector(".pdp .gallery__main img"));
+    add(product.id, Math.min(qty, maxQty), { silent: true });
   }
   function buyNow() {
-    add(product.id, qty, { silent: true });
+    if (!canBuy) return;
+    add(product.id, Math.min(qty, maxQty), { silent: true });
     navigate("/checkout");
   }
 
@@ -123,7 +187,13 @@ export default function Product() {
             <div className="pdp__info">
               {product.tag && <span className="pdp__tag">{product.tag}</span>}
               <h1 className="pdp__name">{product.name}</h1>
-              <p className="pdp__price">{formatRs(product.price)}</p>
+              <div className="pdp__meta">
+                <p className="pdp__price">{formatRs(product.price)}</p>
+                <span className={`stock-badge stock-badge--${status.kind}`}>
+                  <span className="stock-badge__dot" aria-hidden="true" />
+                  {status.label}
+                </span>
+              </div>
 
               <p className="pdp__desc">{description}</p>
 
@@ -138,23 +208,37 @@ export default function Product() {
                 </ul>
               )}
 
+              {product.specs && (
+                <div className="pdp__specs">
+                  <h2>Specifications</h2>
+                  <dl>
+                    {Object.entries(product.specs).map(([k, v]) => (
+                      <div key={k}>
+                        <dt>{k}</dt>
+                        <dd>{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+
               <div className="pdp__buy">
                 <div className="qty qty--lg" role="group" aria-label="Quantity">
                   <button type="button" aria-label="Decrease quantity" onClick={() => setLocalQty((q) => Math.max(1, q - 1))}>
                     <Icon name="minus" />
                   </button>
                   <span aria-live="polite">{qty}</span>
-                  <button type="button" aria-label="Increase quantity" onClick={() => setLocalQty((q) => q + 1)}>
+                  <button type="button" aria-label="Increase quantity" onClick={() => setLocalQty((q) => Math.min(Math.max(1, maxQty), q + 1))} disabled={qty >= maxQty}>
                     <Icon name="plus" />
                   </button>
                 </div>
-                <button type="button" className="btn btn--outline btn--lg pdp__add" onClick={addToCart}>
+                <button type="button" className="btn btn--outline btn--lg pdp__add" onClick={addToCart} disabled={!canBuy}>
                   <Icon name="bag" />
-                  Add to cart
+                  {soldOut ? "Out of stock" : canBuy ? "Add to cart" : "Max in cart"}
                 </button>
               </div>
-              <button type="button" className="btn btn--gold btn--lg btn--block" onClick={buyNow}>
-                Buy now — {formatRs(product.price * qty)}
+              <button type="button" className="btn btn--gold btn--lg btn--block" onClick={buyNow} disabled={!canBuy}>
+                {soldOut ? "Currently unavailable" : `Buy now — ${formatRs(product.price * qty)}`}
               </button>
               <a className="pdp__wa" href={waLink} target="_blank" rel="noopener noreferrer">
                 <Icon name="chat" />
@@ -164,6 +248,14 @@ export default function Product() {
                 <button type="button" className="text-btn pdp__incart" onClick={openDrawer}>
                   {inCart} already in your cart — view cart
                 </button>
+              )}
+
+              {guide && (
+                <Link to={`/blog/${guide.slug}`} className="pdp__guide">
+                  <span className="pdp__guide-label">From our journal</span>
+                  <span className="pdp__guide-title">{guide.title}</span>
+                  <Icon name="arrow" />
+                </Link>
               )}
 
               <ul className="pdp__perks">
@@ -190,11 +282,11 @@ export default function Product() {
           <span className="buybar__name">{product.name}</span>
           <strong>{formatRs(product.price * qty)}</strong>
         </div>
-        <button type="button" className="icon-btn buybar__add" onClick={addToCart} aria-label="Add to cart">
+        <button type="button" className="icon-btn buybar__add" onClick={addToCart} aria-label="Add to cart" disabled={!canBuy}>
           <Icon name="bag" />
         </button>
-        <button type="button" className="btn btn--gold buybar__buy" onClick={buyNow}>
-          Buy now
+        <button type="button" className="btn btn--gold buybar__buy" onClick={buyNow} disabled={!canBuy}>
+          {soldOut ? "Sold out" : "Buy now"}
         </button>
       </div>
 

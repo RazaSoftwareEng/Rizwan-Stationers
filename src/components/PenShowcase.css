@@ -1,0 +1,377 @@
+/* ---- The Pen Studio: scroll-driven floating pen carousel (home page) ---- */
+
+/* tall outer track; the panel inside stays pinned while the page scrolls past it */
+.pens-pin {
+  position: relative;
+}
+.pens {
+  --gap: clamp(78px, 11vw, 150px);
+  --pin-top: 0px;
+  /* free height under the sticky header; the pens get whatever the text doesn't need */
+  --avail: calc(100svh - var(--pin-top));
+  --pen-h: clamp(110px, calc(var(--avail) - 410px), 340px);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --px: 0;
+  --py: 0;
+  position: sticky;
+  top: var(--pin-top);
+  box-sizing: border-box;
+  height: var(--avail);
+  padding-block: clamp(10px, 2svh, 28px);
+  display: flex;
+  align-items: center;
+  align-items: safe center;
+  overflow: hidden;
+  isolation: isolate;
+}
+.pens__head h2 {
+  font-size: clamp(1.45rem, min(3.4vw, 4.4svh), 2.6rem);
+}
+
+/* not pinned (short screens such as phones held sideways): a normal section */
+.pens-pin--static .pens {
+  position: relative;
+  top: auto;
+  height: auto;
+  padding-block: clamp(48px, 8vw, 80px);
+  --pen-h: clamp(170px, 34vw, 280px);
+}
+.pens-pin--static .pens__stage {
+  touch-action: pan-y;
+  cursor: grab;
+}
+.pens-pin--static .pens__head h2 {
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+}
+.pens__inner {
+  width: 100%;
+}
+.pens__head {
+  margin-bottom: clamp(8px, 2svh, 28px);
+}
+
+/* colour of the active pen, glowing behind the row */
+.pens__glow {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: min(760px, 120vw);
+  height: 460px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--glow);
+  opacity: 0.32;
+  filter: blur(90px);
+  transition: background-color 0.9s var(--ease);
+  pointer-events: none;
+}
+
+/* stage */
+.pens__stage {
+  position: relative;
+  height: calc(var(--pen-h) + 80px);
+  perspective: 1300px;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+.pens__stage:focus-visible {
+  box-shadow: 0 0 0 2px var(--gold-soft);
+  border-radius: var(--radius-lg);
+}
+.pens__track {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--py) * -6deg)) rotateY(calc(var(--px) * 10deg));
+  transition: transform 0.6s var(--ease-out);
+}
+
+/* one pen — --d / --abs are set every frame from the scroll position */
+.pens__slide {
+  --d: 0;
+  --abs: 0;
+  position: absolute;
+  left: 50%;
+  top: 26px;
+  width: 0;
+  height: var(--pen-h);
+  display: flex;
+  justify-content: center;
+  transform: translateX(calc(var(--d) * var(--gap))) translateZ(calc(var(--abs) * -150px))
+    rotateY(calc(var(--d) * -16deg)) rotateZ(calc(var(--d) * 9deg))
+    translateY(calc(var(--abs) * 18px)) scale(calc(1 - var(--abs) * 0.09));
+  filter: brightness(calc(1 - var(--abs) * 0.09));
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+}
+.pens__float {
+  display: block;
+  height: 100%;
+  animation: pens-bob 5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.7s);
+}
+.pens__slide img {
+  display: block;
+  height: calc(var(--pen-h) * var(--size));
+  width: auto;
+  max-width: 240px;
+  margin-top: calc(var(--pen-h) * (1 - var(--size)) / 2);
+  /* grows smoothly as the pen reaches the middle */
+  transform: scale(calc(1 + max(0, 1 - var(--abs)) * 0.14));
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.45)) drop-shadow(0 22px 26px rgba(0, 0, 0, 0.45));
+  transition: filter 0.6s var(--ease-out);
+  -webkit-box-reflect: below 14px linear-gradient(transparent 80%, rgba(255, 255, 255, 0.12));
+}
+.pens__slide.is-active img {
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.6)) drop-shadow(0 26px 30px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 30px color-mix(in srgb, var(--glow) 70%, transparent));
+}
+.pens__slide:not(.is-active) {
+  cursor: pointer;
+}
+
+@keyframes pens-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1.5deg);
+  }
+}
+
+/* glowing floor under the row */
+.pens__floor {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: min(720px, 92%);
+  height: 70px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 45%, transparent), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* arrows */
+.pens__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 200;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(217, 191, 133, 0.35);
+  background: rgba(14, 26, 54, 0.55);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    background 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+.pens__nav:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.pens__nav:active {
+  transform: translateY(-50%) scale(0.94);
+}
+.pens__nav--prev {
+  left: 0;
+}
+.pens__nav--prev .icon {
+  transform: rotate(180deg);
+}
+.pens__nav--next {
+  right: 0;
+}
+
+/* "scroll to explore" hint, hidden once the row starts moving */
+.pens__hint {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b9c3d6;
+  white-space: nowrap;
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+}
+.pens__hint.is-hidden {
+  opacity: 0;
+}
+.pens__mouse {
+  position: relative;
+  width: 18px;
+  height: 28px;
+  border: 1.5px solid currentColor;
+  border-radius: 10px;
+}
+.pens__mouse::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 3px;
+  height: 6px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--gold-soft);
+  animation: pens-wheel 1.6s ease-in-out infinite;
+}
+@keyframes pens-wheel {
+  0% {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* product info under the stage */
+.pens__info {
+  display: grid;
+  justify-items: center;
+  gap: clamp(10px, 1.8svh, 18px);
+  margin-top: clamp(8px, 2svh, 20px);
+  text-align: center;
+}
+.pens__text {
+  animation: pens-in 0.5s var(--ease-out) both;
+}
+.pens__cat {
+  font-family: var(--font-caps);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.pens__name {
+  margin-top: 6px;
+  font-size: clamp(1.3rem, min(3vw, 3.8svh), 2.2rem);
+  color: #fff;
+}
+.pens__price {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+}
+.pens__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.pens .pens__details {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.pens .pens__details:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #fff;
+}
+
+@keyframes pens-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* scroll progress through the row */
+.pens__bar {
+  width: 160px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+.pens__bar span {
+  display: block;
+  height: 100%;
+  background: var(--gold-soft);
+  transform-origin: left;
+}
+
+/* short screens: drop the lead line so everything fits while pinned */
+/* the lead line only fits on tall screens */
+@media (max-height: 960px) {
+  .pens__head .section__lead {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  /* the heading wraps to two lines on phones */
+  .pens {
+    --pen-h: clamp(110px, calc(var(--avail) - 450px), 300px);
+  }
+  .pens__nav {
+    width: 40px;
+    height: 40px;
+  }
+  .pens__head .section__lead {
+    display: none;
+  }
+}
+
+/* short screens (small laptops, zoomed browsers): drop the small labels so the pens keep their size */
+@media (max-height: 720px) {
+  .pens {
+    --pen-h: clamp(110px, calc(var(--avail) - 340px), 340px);
+  }
+  .pens__head .eyebrow,
+  .pens__cat {
+    display: none;
+  }
+  .pens__info {
+    gap: 10px;
+  }
+  .pens-pin--static .pens__head .eyebrow,
+  .pens-pin--static .pens__cat {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pens__float,
+  .pens__text,
+  .pens__mouse::after {
+    animation: none;
+  }
+  .pens__track,
+  .pens__slide img {
+    transition: none;
+  }
+}

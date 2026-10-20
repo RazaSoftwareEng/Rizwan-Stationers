@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useSeo, storeLd, breadcrumbLd } from "../seo.js";
 import PageHeader from "../components/PageHeader.jsx";
 import Icon from "../components/Icon.jsx";
 import CategoryIcon from "../components/CategoryIcon.jsx";
@@ -19,6 +20,12 @@ const facts = [
 ];
 
 export default function About() {
+  useSeo({
+    title: "About Us — Since 1995 in Urdu Bazar",
+    description:
+      "The story of Rizwan Stationer: three decades of fine writing, paper and school supplies from Main Urdu Bazar, Lahore — and how we choose what we stock.",
+    jsonLd: [storeLd(), breadcrumbLd([["Home", "/"], ["About Us", "/about"]])],
+  });
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     "Rizwan Stationers, " + shop.address,
   )}`;

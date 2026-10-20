@@ -270,7 +270,7 @@ export default function Header() {
             <Link to="/orders" className="icon-btn header__orders" aria-label="My orders" title="My orders">
               <Icon name="box" />
             </Link>
-            <button type="button" className="icon-btn" onClick={openDrawer} aria-label={`Open cart, ${count} items`}>
+            <button type="button" className="icon-btn" data-cart-target onClick={openDrawer} aria-label={`Open cart, ${count} items`}>
               <Icon name="bag" />
               {count > 0 && <span className="badge">{count}</span>}
             </button>

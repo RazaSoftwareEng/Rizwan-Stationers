@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useSeo, storeLd } from "../seo.js";
 import BeforeAfter from "../components/BeforeAfter.jsx";
 import ShopTheDesk from "../components/ShopTheDesk.jsx";
+import PenShowcase from "../components/PenShowcase.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import SubIcon from "../components/SubIcon.jsx";
 import Icon from "../components/Icon.jsx";
@@ -21,6 +23,11 @@ const perks = [
 ];
 
 export default function Home() {
+  useSeo({
+    description:
+      "Family-run stationery shop in Main Urdu Bazar, Lahore since 1995. Fountain pens, notebooks, desk organisers and school supplies — order online or visit us.",
+    jsonLd: storeLd(),
+  });
   const listLink = `https://wa.me/${shop.whatsapp}?text=${encodeURIComponent(
     "Assalam-o-Alaikum, here is my stationery list:",
   )}`;
@@ -148,6 +155,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ---- pen studio (floating carousel) ---- */}
+      <PenShowcase />
 
       {/* ---- shop the desk ---- */}
       <ShopTheDesk />

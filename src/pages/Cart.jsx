@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useSeo } from "../seo.js";
 import { useCart, formatRs, FREE_DELIVERY_FROM } from "../cart.jsx";
 import ProductThumb from "../components/ProductThumb.jsx";
 import Icon from "../components/Icon.jsx";
@@ -6,6 +7,7 @@ import { DeliveryProgress, QtyControl, orderLink } from "../components/CartDrawe
 import { Steps } from "./Checkout.jsx";
 
 export default function Cart() {
+  useSeo({ title: "Your Cart", description: "Your Cart — Rizwan Stationer.", noindex: true });
   const { lines, total, count, clear } = useCart();
 
   if (!lines.length) {

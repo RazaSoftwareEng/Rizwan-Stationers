@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSeo, absUrl, breadcrumbLd } from "../seo.js";
 import { Link } from "react-router-dom";
 import PageHeader from "../components/PageHeader.jsx";
 import PostCover from "../components/PostCover.jsx";
@@ -18,6 +19,26 @@ function Meta({ post }) {
 }
 
 export default function Blog() {
+  useSeo({
+    title: "Stationery Tips & Guides — The Journal",
+    description:
+      "Practical guides from the Rizwan Stationer counter: choosing a fountain pen, organising your desk, back-to-school checklists and journaling for beginners.",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        name: "The Rizwan Stationer Journal",
+        url: absUrl("/blog"),
+        blogPost: posts.map((p) => ({
+          "@type": "BlogPosting",
+          headline: p.title,
+          url: absUrl(`/blog/${p.slug}`),
+          datePublished: p.date,
+        })),
+      },
+      breadcrumbLd([["Home", "/"], ["Journal", "/blog"]]),
+    ],
+  });
   const topics = ["All", ...new Set(posts.map((p) => p.topic))];
   const [topic, setTopic] = useState("All");
   const list = posts.filter((p) => topic === "All" || p.topic === topic);

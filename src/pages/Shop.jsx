@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSeo, breadcrumbLd } from "../seo.js";
 import { Link, useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard.jsx";
 import PageHeader from "../components/PageHeader.jsx";
@@ -27,6 +28,26 @@ export default function Shop() {
 
   const current = categories.find((c) => c.id === cat);
   const currentSub = current?.subs.find((s) => s.id === sub);
+
+  const seoName = currentSub?.name || current?.name;
+  const seoPath = current ? `/shop?cat=${current.id}${currentSub ? `&sub=${currentSub.id}` : ""}` : "/shop";
+  useSeo({
+    title: seoName ? `${seoName} — Buy Online in Lahore` : "Shop All Stationery",
+    description: currentSub
+      ? `Shop ${currentSub.name.toLowerCase()} from our ${current.name} range at Rizwan Stationer, Lahore. Clear prices, live stock and delivery or pickup from Main Urdu Bazar.`
+      : current
+      ? `Shop ${current.name.toLowerCase()} at Rizwan Stationer, Lahore — ${current.blurb.toLowerCase()}. Clear prices, live stock and delivery or pickup from Main Urdu Bazar.`
+      : "Browse fountain pens, notebooks, registers, desk organisers and school supplies at Rizwan Stationer, Lahore. Clear prices and delivery across Lahore.",
+    path: seoPath,
+    // search-result pages are thin duplicates of the catalogue
+    noindex: !!qParam,
+    jsonLd: breadcrumbLd([
+      ["Home", "/"],
+      ["Shop", "/shop"],
+      ...(current ? [[current.name, `/shop?cat=${current.id}`]] : []),
+      ...(currentSub ? [[currentSub.name, seoPath]] : []),
+    ]),
+  });
 
   const q = query.trim().toLowerCase();
   const list = products
