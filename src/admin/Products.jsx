@@ -5,6 +5,8 @@ import { formatRs } from "../cart.jsx";
 import CategoryIcon from "../components/CategoryIcon.jsx";
 import { PageHead, AdminIcon, Empty, CatalogNotice, formatDate } from "./ui.jsx";
 import ProductForm from "./ProductForm.jsx";
+import ImportProducts from "./ImportProducts.jsx";
+import { descriptionText } from "../components/RichDescription.jsx";
 import { AuthError, productsApi } from "./auth.js";
 
 const sorts = {
@@ -32,6 +34,7 @@ export default function Products() {
   const [confirm, setConfirm] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [flash, setFlash] = useState(null);
+  const [importing, setImporting] = useState(false);
 
   const notify = (text, kind = "ok") => {
     setFlash({ text, kind });
@@ -96,6 +99,10 @@ export default function Products() {
   return (
     <>
       <PageHead title="Products" sub={`${products.length} products from the API`}>
+        <button type="button" className="adm-btn adm-btn--ghost" onClick={() => setImporting(true)}>
+          <AdminIcon name="upload" />
+          Import CSV
+        </button>
         <button type="button" className="adm-btn adm-btn--ghost" onClick={exportCsv} disabled={!list.length}>
           <AdminIcon name="download" />
           Export CSV
@@ -165,7 +172,7 @@ export default function Products() {
                         <span>
                           <span className="adm-strong">{p.name}</span>
                           {p.images.length > 1 && <span className="adm-prod__count">{p.images.length} images</span>}
-                          {p.description && <span className="adm-prod__desc">{p.description}</span>}
+                          {p.description && <span className="adm-prod__desc">{descriptionText(p.description)}</span>}
                         </span>
                       </div>
                     </td>
@@ -199,6 +206,8 @@ export default function Products() {
           <Empty>{products.length ? "No products match these filters." : "No products yet."}</Empty>
         )}
       </div>
+
+      {importing && <ImportProducts products={products} onClose={() => setImporting(false)} onDone={reload} onSignedOut={signedOut} />}
 
       {editing && (
         <ProductForm

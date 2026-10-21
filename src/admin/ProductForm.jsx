@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import RichDescription from "../components/RichDescription.jsx";
+import { compressImage, formatSize } from "./compressImage.js";
 import { ApiError, AuthError, MAX_IMAGES, imagesApi, productsApi } from "./auth.js";
 import { AdminIcon } from "./ui.jsx";
 
-const MAX_MB = 5;
+// originals can be large — they're shrunk and converted to WebP before upload
+const MAX_MB = 25;
 let tempId = 0;
 
 // Add / edit a product. `product` is a storefront product (from the catalog) or null for a new one.
@@ -28,6 +31,53 @@ export default function ProductForm({ product, categories, onClose, onSaved, onS
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState("");
+  const descRef = useRef(null);
+  const [showPreview, setShowPreview] = useState(true);
+
+  // toolbar: add a line prefix to every selected line (or the current one)
+  function format(kind) {
+    const el = descRef.current;
+    if (!el) return;
+    const text = form.description;
+    let start = el.selectionStart;
+    let end = el.selectionEnd;
+    if (kind === "bold") {
+      const picked = text.slice(start, end) || "bold text";
+      const next = text.slice(0, start) + `**${picked}**` + text.slice(end);
+      setForm((f) => ({ ...f, description: next }));
+      requestAnimationFrame(() => {
+        el.focus();
+        el.setSelectionRange(start + 2, start + 2 + picked.length);
+      });
+      return;
+    }
+    if (kind === "para") {
+      const insert = (start > 0 && text[start - 1] !== "\n" ? "\n\n" : start > 0 && text[start - 2] !== "\n" ? "\n" : "") + "";
+      const next = text.slice(0, start) + insert + text.slice(end);
+      setForm((f) => ({ ...f, description: next }));
+      requestAnimationFrame(() => {
+        el.focus();
+        el.setSelectionRange(start + insert.length, start + insert.length);
+      });
+      return;
+    }
+    const lineStart = text.lastIndexOf("\n", start - 1) + 1;
+    const lineEnd = text.indexOf("\n", end) === -1 ? text.length : text.indexOf("\n", end);
+    const lines = text.slice(lineStart, lineEnd).split("\n");
+    const clean = (l) => l.replace(/^\s*([-•*]|\d+[.)]|#{2,3})\s+/, "");
+    // empty lines stay empty (they separate paragraphs); numbering skips them
+    let n = 0;
+    const out = lines.map((l) =>
+      !l.trim() ? l : kind === "bullet" ? `- ${clean(l)}` : kind === "number" ? `${++n}. ${clean(l)}` : `## ${clean(l)}`,
+    );
+    const block = out.join("\n");
+    const next = text.slice(0, lineStart) + block + text.slice(lineEnd);
+    setForm((f) => ({ ...f, description: next }));
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(lineStart + block.length, lineStart + block.length);
+    });
+  }
 
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && !busy && onClose();
@@ -45,13 +95,15 @@ export default function ProductForm({ product, categories, onClose, onSaved, onS
 
   const gallery = [
     ...saved.map((im) => ({ key: `s${im.id}`, url: im.url, isNew: false })),
-    ...added.map((a) => ({ key: `n${a.key}`, url: a.url, isNew: true, name: a.file.name })),
+    ...added.map((a) => ({ key: `n${a.key}`, url: a.url, isNew: true, name: a.file.name, size: a.file.size, original: a.original })),
   ];
   const room = MAX_IMAGES - gallery.length;
   // if nothing is picked, the first image is the featured one
   const featuredKey = gallery.some((g) => g.key === featured) ? featured : gallery[0]?.key || null;
 
-  function addFiles(e) {
+  const [optimizing, setOptimizing] = useState(0);
+
+  async function addFiles(e) {
     const files = [...(e.target.files || [])];
     e.target.value = "";
     const tooBig = files.filter((f) => f.size > MAX_MB * 1024 * 1024);
@@ -60,7 +112,14 @@ export default function ProductForm({ product, categories, onClose, onSaved, onS
     if (tooBig.length) msgs.push(`${tooBig.length} image${tooBig.length > 1 ? "s are" : " is"} over ${MAX_MB} MB.`);
     if (files.length - tooBig.length > ok.length) msgs.push(`A product can have at most ${MAX_IMAGES} images.`);
     setErrors((errs) => ({ ...errs, images: msgs.join(" ") || undefined }));
-    setAdded((list) => [...list, ...ok.map((file) => ({ key: ++tempId, file, url: URL.createObjectURL(file) }))]);
+    if (!ok.length) return;
+    // shrink + convert to WebP in the browser before anything is uploaded
+    setOptimizing((n) => n + ok.length);
+    for (const original of ok) {
+      const file = await compressImage(original);
+      setAdded((list) => [...list, { key: ++tempId, file, original: original.size, url: URL.createObjectURL(file) }]);
+      setOptimizing((n) => n - 1);
+    }
   }
 
   function removeImage(g) {
@@ -178,7 +237,41 @@ export default function ProductForm({ product, categories, onClose, onSaved, onS
         )}
 
         {field("name", "Name", <input className="adm-input" value={form.name} onChange={set("name")} autoFocus maxLength={200} />)}
-        {field("description", "Description", <textarea className="adm-input" rows={4} value={form.description} onChange={set("description")} />)}
+        <div className="adm-field">
+          <span className="adm-gallery__head">
+            Description
+            <button type="button" className="adm-link adm-desc__toggle" onClick={() => setShowPreview((v) => !v)}>
+              {showPreview ? "Hide preview" : "Show preview"}
+            </button>
+          </span>
+          <div className="adm-desc">
+            <div className="adm-desc__bar" role="toolbar" aria-label="Description formatting">
+              <button type="button" onClick={() => format("para")} title="New paragraph (blank line)">¶ Paragraph</button>
+              <button type="button" onClick={() => format("bullet")} title="Bullet points: lines starting with - ">• Bullets</button>
+              <button type="button" onClick={() => format("number")} title="Numbered points: lines starting with 1. ">1. Numbered</button>
+              <button type="button" onClick={() => format("heading")} title="Small heading: line starting with ## ">H Heading</button>
+              <button type="button" onClick={() => format("bold")} title="Bold: **text**"><strong>B</strong></button>
+            </div>
+            <textarea
+              ref={descRef}
+              className="adm-input adm-desc__input"
+              rows={8}
+              value={form.description}
+              onChange={set("description")}
+              placeholder={"Smooth writing for signatures and gifting.\n\nA weighted brass pen with a polished gold nib.\n\n## Features\n- Medium steel nib\n- Comes in a gift box\n\nNib: Medium\nBody: Brass"}
+            />
+          </div>
+          <small className="adm-muted adm-desc__help">
+            Blank line = new paragraph · <code>- </code> bullet · <code>1. </code> numbered · <code>## </code> heading ·{" "}
+            <code>Label: value</code> lines = specs table · <code>**bold**</code>
+          </small>
+          {showPreview && form.description.trim() && (
+            <div className="adm-desc__preview">
+              <span className="adm-desc__label">Preview — how it looks in the shop</span>
+              <RichDescription text={form.description} />
+            </div>
+          )}
+        </div>
         <div className="adm-form__row">
           {field(
             "price",
@@ -222,6 +315,11 @@ export default function ProductForm({ product, categories, onClose, onSaved, onS
                   <img src={g.url} alt={g.name || ""} />
                   {isFeatured && <span className="adm-gallery__badge">Featured</span>}
                   {g.isNew && <span className="adm-gallery__new">New</span>}
+                  {g.isNew && (
+                    <span className="adm-gallery__size" title={g.size < g.original ? `Converted to WebP: ${formatSize(g.original)} → ${formatSize(g.size)}` : "Kept as is"}>
+                      {g.size < g.original ? `${formatSize(g.original)} → ${formatSize(g.size)}` : formatSize(g.size)}
+                    </span>
+                  )}
                   <span className="adm-gallery__tools">
                     <button
                       type="button"
@@ -247,9 +345,15 @@ export default function ProductForm({ product, categories, onClose, onSaved, onS
                   <AdminIcon name="plus" />
                   <span>Add images</span>
                   <small>
-                    up to {room} more · {MAX_MB} MB each
+                    up to {room} more · auto WebP
                   </small>
                 </label>
+              </li>
+            )}
+            {optimizing > 0 && (
+              <li className="adm-gallery__busy" role="status">
+                <span className="catalog-state__spinner" aria-hidden="true" />
+                <small>Optimizing…</small>
               </li>
             )}
           </ul>
@@ -261,7 +365,7 @@ export default function ProductForm({ product, categories, onClose, onSaved, onS
           <button type="button" className="adm-btn adm-btn--ghost" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button type="submit" className="adm-btn adm-btn--primary" disabled={busy}>
+          <button type="submit" className="adm-btn adm-btn--primary" disabled={busy || optimizing > 0}>
             {busy ? "Saving…" : editing ? "Save changes" : "Add product"}
           </button>
         </div>

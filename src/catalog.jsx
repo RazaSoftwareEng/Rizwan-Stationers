@@ -16,7 +16,14 @@ export const slugify = (s) =>
 // media paths from the API may be relative ("/media/…")
 function mediaUrl(src) {
   if (!src) return null;
-  if (/^https?:\/\//.test(src)) return src;
+  if (/^https?:\/\//.test(src)) {
+    // through the same-origin /media proxy, so the browser can also read the pixels (cut-outs)
+    if (!API_BASE) {
+      const u = new URL(src);
+      if (u.pathname.startsWith("/media/")) return u.pathname + u.search;
+    }
+    return src;
+  }
   return `${API_BASE}${src.startsWith("/") ? "" : "/"}${src}`;
 }
 

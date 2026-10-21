@@ -4,14 +4,17 @@ import { useCatalog, stockStatus } from "../catalog.jsx";
 import CategoryIcon from "./CategoryIcon.jsx";
 import Icon from "./Icon.jsx";
 import { flyToCart } from "../flyToCart.js";
+import { useCutout } from "../useCutout.js";
 
 export default function ProductCard({ product }) {
   const { add, qtyOf, setQty, remove } = useCart();
   const { categories } = useCatalog();
   const category = categories.find((c) => c.id === product.category);
   const url = `/product/${product.id}`;
-  const photo = product.cutout || product.images?.[0];
-  const cut = !!product.cutout;
+  // white-background shots are cut out in the browser so they can lift out of the card
+  const autoCut = useCutout(product.cutout ? null : product.images?.[0]);
+  const photo = product.cutout || autoCut || product.images?.[0];
+  const cut = !!(product.cutout || autoCut);
   const inCart = qtyOf(product.id);
   const status = stockStatus(product);
   const maxQty = product.stock == null ? MAX_QTY : Math.min(MAX_QTY, product.stock);

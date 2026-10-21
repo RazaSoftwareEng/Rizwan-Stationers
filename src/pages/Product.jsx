@@ -10,32 +10,75 @@ import ProductCard from "../components/ProductCard.jsx";
 import CategoryIcon from "../components/CategoryIcon.jsx";
 import Icon from "../components/Icon.jsx";
 import { flyToCart } from "../flyToCart.js";
+import { useCutout } from "../useCutout.js";
 import NotFound from "./NotFound.jsx";
+import RichDescription, { descriptionText } from "../components/RichDescription.jsx";
+
+const ZOOM = 2.4;
+
+// a photo with its white backdrop removed once the cut-out is ready (plain photo until then)
+function CleanImg({ src, ...rest }) {
+  const cut = useCutout(src);
+  return <img src={cut || src} {...rest} />;
+}
 
 function Gallery({ product }) {
   const images = product.images || [];
   const [active, setActive] = useState(0);
+  // zoom: { x, y } in % of the photo while the cursor (or a tap) is on it
+  const [zoom, setZoom] = useState(null);
 
   useEffect(() => {
     setActive(0);
+    setZoom(null);
   }, [product.id]);
 
   if (!images.length) {
     return (
-      <div className={`gallery__main gallery__main--art art--${product.category}`}>
-        <span className="art__ring">
-          <CategoryIcon category={product.category} />
-        </span>
+      <div className="gallery">
+        <div className={`gallery__main gallery__main--art art--${product.category}`}>
+          <span className="art__ring">
+            <CategoryIcon category={product.category} />
+          </span>
+        </div>
       </div>
     );
   }
 
-  const go = (d) => setActive((i) => (i + d + images.length) % images.length);
+  const go = (d) => {
+    setZoom(null);
+    setActive((i) => (i + d + images.length) % images.length);
+  };
+  const at = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    return {
+      x: Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)),
+      y: Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)),
+    };
+  };
 
   return (
-    <div className="gallery">
+    <div className={"gallery" + (images.length > 1 ? " gallery--multi" : "")}>
       <div className="gallery__main">
-        <img key={images[active]} src={images[active]} alt={`${product.name} — photo ${active + 1} of ${images.length}`} />
+        <div
+          className={"gallery__zoom" + (zoom ? " is-zoomed" : "")}
+          onPointerMove={(e) => e.pointerType === "mouse" && setZoom(at(e))}
+          onPointerLeave={(e) => e.pointerType === "mouse" && setZoom(null)}
+          // touch: tap to zoom in at that spot, tap again to zoom out
+          onClick={(e) => {
+            if (e.nativeEvent.pointerType === "mouse") return;
+            const spot = at(e); // read the position now — the event is gone by the time state updates
+            setZoom((z) => (z ? null : spot));
+          }}
+          style={zoom ? { "--zx": `${zoom.x}%`, "--zy": `${zoom.y}%`, "--zs": ZOOM } : undefined}
+        >
+          <CleanImg key={images[active]} src={images[active]} alt={`${product.name} — photo ${active + 1} of ${images.length}`} draggable="false" />
+        </div>
+        {!zoom && (
+          <span className="gallery__hint" aria-hidden="true">
+            <Icon name="search" /> Hover to zoom
+          </span>
+        )}
         {images.length > 1 && (
           <>
             <button type="button" className="gallery__nav gallery__nav--prev" onClick={() => go(-1)} aria-label="Previous photo">
@@ -51,20 +94,24 @@ function Gallery({ product }) {
         )}
       </div>
       {images.length > 1 && (
-        <div className="gallery__thumbs" role="group" aria-label="Product photos">
-          {images.map((src, i) => (
-            <button
-              key={src}
-              type="button"
-              className={"gallery__thumb" + (i === active ? " is-active" : "")}
-              onClick={() => setActive(i)}
-              aria-label={`Show photo ${i + 1}`}
-              aria-pressed={i === active}
-            >
-              <img src={src} alt="" />
-            </button>
-          ))}
-        </div>
+      <div className="gallery__thumbs" role="group" aria-label="Product photos">
+        {images.map((src, i) => (
+          <button
+            key={src}
+            type="button"
+            className={"gallery__thumb" + (i === active ? " is-active" : "")}
+            onClick={() => {
+              setZoom(null);
+              setActive(i);
+            }}
+            onMouseEnter={() => setActive(i)}
+            aria-label={`Show photo ${i + 1}`}
+            aria-pressed={i === active}
+          >
+            <CleanImg src={src} alt="" />
+          </button>
+        ))}
+      </div>
       )}
     </div>
   );
@@ -85,7 +132,7 @@ function productSeo(product, categories, loading) {
   return {
     title: product.name,
     description: clip(
-      `${product.name} — ${formatRs(product.price)} at Rizwan Stationer, Lahore. ${product.description || ""}`.trim(),
+      `${product.name} — ${formatRs(product.price)} at Rizwan Stationer, Lahore. ${descriptionText(product.description)}`.trim(),
       158,
     ),
     path,
@@ -97,7 +144,7 @@ function productSeo(product, categories, loading) {
         "@type": "Product",
         name: product.name,
         sku: product.id,
-        description: product.description,
+        description: descriptionText(product.description),
         image: (product.images || [image]).filter(Boolean).map((src) => absUrl(src)),
         category: [category?.name, sub?.name].filter(Boolean).join(" > "),
         offers: {
@@ -210,7 +257,7 @@ export default function Product() {
                 </span>
               </div>
 
-              <p className="pdp__desc">{description}</p>
+              <RichDescription text={description} className="pdp__desc" />
 
               {product.features?.length > 0 && (
                 <ul className="pdp__features">

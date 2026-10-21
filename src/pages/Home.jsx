@@ -6,6 +6,7 @@ import PenShowcase from "../components/PenShowcase.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import CategoryIcon from "../components/CategoryIcon.jsx";
 import CatalogState from "../components/CatalogState.jsx";
+import CategoryTile from "../components/CategoryTile.jsx";
 import Icon from "../components/Icon.jsx";
 import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
@@ -30,7 +31,7 @@ export default function Home() {
   });
   const { products, categories } = useCatalog();
   // newest products first
-  const featured = [...products].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 4);
+  const featured = [...products].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 8);
   const listLink = `https://wa.me/${shop.whatsapp}?text=${encodeURIComponent(
     "Assalam-o-Alaikum, here is my stationery list:",
   )}`;
@@ -105,13 +106,7 @@ export default function Home() {
             <ul className="tiles">
               {categories.slice(0, 12).map((c) => (
                 <li key={c.id}>
-                  <Link to={`/shop?cat=${c.id}`} className="tile">
-                    <span className={`tile__pic art--${c.id}`}>
-                      <CategoryIcon category={c.id} />
-                    </span>
-                    <span className="tile__name">{c.name}</span>
-                    <span className="tile__count">{c.blurb}</span>
-                  </Link>
+                  <CategoryTile category={c} products={products} />
                 </li>
               ))}
             </ul>
