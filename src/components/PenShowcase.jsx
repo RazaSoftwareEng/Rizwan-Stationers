@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { products, categories, stockStatus } from "../data/products.js";
+import { useCatalog, stockStatus } from "../catalog.jsx";
 import { showcase } from "../data/showcase.js";
 import { useCart, formatRs } from "../cart.jsx";
 import { flyToCart } from "../flyToCart.js";
@@ -16,9 +16,6 @@ const EASE = 0.12;
 const MIN_PIN_HEIGHT = 500;
 const SWIPE_PX = 40;
 
-const items = showcase
-  .map((s) => ({ ...s, product: products.find((p) => p.id === s.id) }))
-  .filter((s) => s.product);
 
 // signed distance from position `pos`, wrapped so the row loops (-n/2..n/2)
 function wrap(d, n) {
@@ -33,8 +30,21 @@ const clamp01 = (v) => Math.min(1, Math.max(0, v));
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-// The section is pinned while the page scrolls past it; scroll progress turns the pen row.
+// Shows the pens that exist in the shop (matched by name); hidden when none do.
 export default function PenShowcase() {
+  const { products, findByName } = useCatalog();
+  const items = useMemo(
+    () => showcase.map((s) => ({ ...s, product: findByName(s.name) })).filter((s) => s.product),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [products],
+  );
+  if (!items.length) return null;
+  return <Showcase items={items} />;
+}
+
+// The section is pinned while the page scrolls past it; scroll progress turns the pen row.
+function Showcase({ items }) {
+  const { categories } = useCatalog();
   const n = items.length;
   const start = Math.floor(n / 2); // middle entry first
   const [active, setActive] = useState(start);

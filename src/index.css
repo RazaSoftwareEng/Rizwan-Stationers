@@ -4703,3 +4703,105 @@ a.mini-line__name:hover {
   padding: 10%;
   filter: drop-shadow(0 6px 8px rgba(20, 37, 74, 0.15));
 }
+
+/* products loading / unavailable (see CatalogState.jsx) */
+.catalog-state {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--muted);
+}
+.catalog-state--error p {
+  color: var(--ink);
+  font-weight: 600;
+}
+.catalog-state__spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--gold);
+  animation: catalog-spin 0.8s linear infinite;
+}
+@keyframes catalog-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.tile__count {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.acc__btn--link {
+  text-decoration: none;
+}
+.acc__count {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ---- product photos from the API (regular JPG/PNG shots, usually on white) ----
+   shown whole, with the white background blended into the card so the product
+   reads like a cut-out; on hover it lifts, tilts and a soft gold glow rises behind it */
+.card__art--photo {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 45%, var(--surface) 0%, transparent 68%),
+    var(--cream);
+}
+.card__art--photo::before {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(217, 191, 133, 0.85), rgba(217, 191, 133, 0.28) 60%, transparent);
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity 0.5s var(--ease),
+    transform 0.7s var(--ease);
+  pointer-events: none;
+}
+.card__art--photo img {
+  object-fit: contain;
+  padding: 9%;
+  mix-blend-mode: multiply;
+}
+.thumb--photo img {
+  object-fit: contain;
+  padding: 8%;
+  mix-blend-mode: multiply;
+}
+.thumb--photo {
+  background: var(--cream);
+}
+@media (hover: hover) {
+  .card:hover .card__art--photo::before {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  .card:hover .card__art--photo img {
+    transform: translateY(-8%) scale(1.16) rotate(-5deg);
+  }
+  .card:hover:has(.card__art--photo) {
+    box-shadow:
+      0 30px 60px -28px rgba(176, 138, 62, 0.55),
+      0 0 0 1px rgba(217, 191, 133, 0.7);
+  }
+}
+/* touch screens: a gentle glow while the card is pressed */
+@media (hover: none) {
+  .card:active .card__art--photo::before {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card__art--photo::before {
+    transition: none;
+  }
+}

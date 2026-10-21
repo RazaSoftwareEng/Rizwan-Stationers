@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useCart, formatRs, FREE_DELIVERY_FROM } from "../cart.jsx";
-import { categories, products } from "../data/products.js";
+import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
 import Icon from "./Icon.jsx";
 import CategoryIcon from "./CategoryIcon.jsx";
@@ -12,8 +12,8 @@ const pages = [
   { to: "/contact", label: "Contact" },
 ];
 
-const countIn = (cat, sub) =>
-  products.filter((p) => p.category === cat && (!sub || p.sub === sub)).length;
+// how many categories fit in the desktop bar before the rest are only under "Shop All"
+const NAV_CATEGORIES = 4;
 
 export function Logo() {
   return (
@@ -63,6 +63,8 @@ function useActiveCat() {
 function CategoryNav() {
   const activeCat = useActiveCat();
   const [closed, setClosed] = useState(null);
+  const { categories, products } = useCatalog();
+  const countIn = (cat, sub) => products.filter((p) => p.category === cat && (!sub || p.sub === sub)).length;
 
   return (
     <nav className="catnav" aria-label="Main">
@@ -71,7 +73,14 @@ function CategoryNav() {
           <li>
             <NavLink to="/" end className="catnav__link">Home</NavLink>
           </li>
-          {categories.map((c) => (
+          {categories.slice(0, NAV_CATEGORIES).map((c) =>
+            !c.subs.length ? (
+              <li key={c.id}>
+                <Link to={`/shop?cat=${c.id}`} className={"catnav__link" + (activeCat === c.id ? " active" : "")}>
+                  {c.name}
+                </Link>
+              </li>
+            ) : (
             <li
               key={c.id}
               className={"has-drop" + (closed === c.id ? " is-closed" : "")}
@@ -113,7 +122,8 @@ function CategoryNav() {
                 </div>
               </div>
             </li>
-          ))}
+            ),
+          )}
           <li>
             <Link to="/shop" className={"catnav__link" + (activeCat === "all" ? " active" : "")}>
               Shop All
@@ -134,6 +144,7 @@ function CategoryNav() {
 /* ---------- mobile slide-in menu ---------- */
 function MobileMenu({ open, onClose }) {
   const [expanded, setExpanded] = useState(null);
+  const { categories } = useCatalog();
 
   useEffect(() => {
     if (!open) return;
@@ -163,6 +174,16 @@ function MobileMenu({ open, onClose }) {
           <p className="mmenu__label">Shop by category</p>
           {categories.map((c) => {
             const isOpen = expanded === c.id;
+            if (!c.subs.length)
+              return (
+                <Link key={c.id} to={`/shop?cat=${c.id}`} className="acc__btn acc__btn--link">
+                  <span className={`acc__icon art--${c.id}`}>
+                    <CategoryIcon category={c.id} />
+                  </span>
+                  {c.name}
+                  <span className="acc__count">{c.count}</span>
+                </Link>
+              );
             return (
               <div key={c.id} className={"acc" + (isOpen ? " is-open" : "")}>
                 <button

@@ -4,16 +4,16 @@ import BeforeAfter from "../components/BeforeAfter.jsx";
 import ShopTheDesk from "../components/ShopTheDesk.jsx";
 import PenShowcase from "../components/PenShowcase.jsx";
 import ProductCard from "../components/ProductCard.jsx";
-import SubIcon from "../components/SubIcon.jsx";
+import CategoryIcon from "../components/CategoryIcon.jsx";
+import CatalogState from "../components/CatalogState.jsx";
 import Icon from "../components/Icon.jsx";
-import { products, homeTiles, categoryImages, findSubById } from "../data/products.js";
+import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
 import { posts } from "../data/posts.js";
 import PostCover from "../components/PostCover.jsx";
 import { Meta } from "./Blog.jsx";
 import { formatRs, FREE_DELIVERY_FROM } from "../cart.jsx";
 
-const featured = products.filter((p) => p.tag).slice(0, 4);
 
 const perks = [
   { icon: "truck", title: "Free Lahore delivery", text: `On orders over ${formatRs(FREE_DELIVERY_FROM)}` },
@@ -28,6 +28,9 @@ export default function Home() {
       "Family-run stationery shop in Main Urdu Bazar, Lahore since 1995. Fountain pens, notebooks, desk organisers and school supplies — order online or visit us.",
     jsonLd: storeLd(),
   });
+  const { products, categories } = useCatalog();
+  // newest products first
+  const featured = [...products].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 4);
   const listLink = `https://wa.me/${shop.whatsapp}?text=${encodeURIComponent(
     "Assalam-o-Alaikum, here is my stationery list:",
   )}`;
@@ -97,22 +100,22 @@ export default function Home() {
               Shop all <Icon name="arrow" />
             </Link>
           </div>
-          <ul className="tiles">
-            {homeTiles.map(findSubById).filter(Boolean).map((s) => (
-              <li key={s.id}>
-                <Link to={`/shop?cat=${s.cat}&sub=${s.id}`} className="tile">
-                  <span className="tile__pic">
-                    {categoryImages[s.id] ? (
-                      <img src={categoryImages[s.id]} alt="" loading="lazy" />
-                    ) : (
-                      <SubIcon sub={s.id} />
-                    )}
-                  </span>
-                  <span className="tile__name">{s.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <CatalogState />
+          {categories.length > 0 && (
+            <ul className="tiles">
+              {categories.slice(0, 12).map((c) => (
+                <li key={c.id}>
+                  <Link to={`/shop?cat=${c.id}`} className="tile">
+                    <span className={`tile__pic art--${c.id}`}>
+                      <CategoryIcon category={c.id} />
+                    </span>
+                    <span className="tile__name">{c.name}</span>
+                    <span className="tile__count">{c.blurb}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 
@@ -128,8 +131,8 @@ export default function Home() {
           </div>
           <BeforeAfter />
           <div className="center section__cta">
-            <Link to="/shop?cat=organisers" className="btn btn--gold btn--lg">
-              Shop organisers
+            <Link to="/shop" className="btn btn--gold btn--lg">
+              Shop all products
               <Icon name="arrow" />
             </Link>
           </div>
@@ -141,8 +144,8 @@ export default function Home() {
         <div className="container">
           <div className="section__head section__head--row">
             <div>
-              <p className="eyebrow">Our picks</p>
-              <h2>Customer favourites</h2>
+              <p className="eyebrow">Just added</p>
+              <h2>New in the shop</h2>
             </div>
             <Link to="/shop" className="link-arrow">
               View all products <Icon name="arrow" />

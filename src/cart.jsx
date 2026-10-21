@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { products } from "./data/products.js";
+import { useCatalog } from "./catalog.jsx";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "rs-cart";
@@ -35,6 +35,7 @@ export function CartProvider({ children }) {
   // toast: { key, kind: "added" | "info", product?, title, text?, action?: { label, run } }
   const [toast, setToast] = useState(null);
   const toastTimer = useRef();
+  const { findProduct } = useCatalog();
 
   useEffect(() => {
     writeJSON(STORAGE_KEY, items);
@@ -46,7 +47,7 @@ export function CartProvider({ children }) {
       setToast({ ...t, key: Date.now() });
       toastTimer.current = setTimeout(() => setToast(null), ms);
     };
-    const find = (id) => products.find((p) => p.id === id);
+    const find = findProduct;
 
     const lines = Object.entries(items)
       .map(([id, qty]) => ({ product: find(id), qty }))
@@ -120,7 +121,7 @@ export function CartProvider({ children }) {
       toast,
       dismissToast: () => setToast(null),
     };
-  }, [items, drawerOpen, toast]);
+  }, [findProduct, items, drawerOpen, toast]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
@@ -150,6 +151,11 @@ export function loadOrders() {
 }
 export function saveOrder(order) {
   writeJSON(ORDERS_KEY, [order, ...loadOrders()].slice(0, 50));
+}
+export function updateOrderStatus(number, status) {
+  const list = loadOrders().map((o) => (o.number === number ? { ...o, status } : o));
+  writeJSON(ORDERS_KEY, list);
+  return list;
 }
 // a specific order by number, or the most recent one
 export function loadOrder(number) {

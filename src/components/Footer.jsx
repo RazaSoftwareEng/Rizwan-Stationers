@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { shop } from "../data/shop.js";
-import { categories } from "../data/products.js";
+import { useCatalog } from "../catalog.jsx";
 import Icon from "./Icon.jsx";
 
 export default function Footer() {
+  const { categories } = useCatalog();
   return (
     <footer className="footer">
       <div className="container footer__grid">
@@ -18,7 +19,10 @@ export default function Footer() {
         <div>
           <p className="footer__title">Shop</p>
           <ul className="footer__list">
-            {categories.map((c) => (
+            <li>
+              <Link to="/shop">Shop all</Link>
+            </li>
+            {categories.slice(0, 6).map((c) => (
               <li key={c.id}>
                 <Link to={`/shop?cat=${c.id}`}>{c.name}</Link>
               </li>

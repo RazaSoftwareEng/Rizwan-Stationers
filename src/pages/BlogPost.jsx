@@ -7,13 +7,22 @@ import Icon from "../components/Icon.jsx";
 import NotFound from "./NotFound.jsx";
 import { Meta } from "./Blog.jsx";
 import { posts, formatDate } from "../data/posts.js";
-import { categories, products, stockStatus } from "../data/products.js";
+import { useCatalog, stockStatus } from "../catalog.jsx";
 import { useCart, formatRs } from "../cart.jsx";
 import { flyToCart } from "../flyToCart.js";
 import { useSeo, absUrl, breadcrumbLd, SITE_NAME } from "../seo.js";
 
 // "[text](/path)" → router link, "**text**" → bold; everything else stays plain text.
+// Links to products or categories the shop doesn't have (yet) render as plain text.
 function Rich({ text }) {
+  const { findProduct, categories } = useCatalog();
+  const exists = (to) => {
+    const prod = to.match(/^\/product\/([^/?#]+)/);
+    if (prod) return !!findProduct(prod[1]);
+    const cat = to.match(/^\/shop\?cat=([^&#]+)/);
+    if (cat) return categories.some((c) => c.id === cat[1]);
+    return true;
+  };
   const parts = [];
   const re = /\[([^\]]+)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*/g;
   let last = 0;
@@ -23,6 +32,8 @@ function Rich({ text }) {
     parts.push(
       m[3] ? (
         <strong key={m.index}>{m[3]}</strong>
+      ) : !exists(m[2]) ? (
+        <Fragment key={m.index}>{m[1]}</Fragment>
       ) : (
         <Link key={m.index} to={m[2]} className="article__link">
           {m[1]}
@@ -182,7 +193,8 @@ function Share({ post, compact = false }) {
 
 // a product mentioned mid-article, with a quick add to cart
 function ArticleProduct({ id, note }) {
-  const product = products.find((p) => p.id === id);
+  const { findProduct } = useCatalog();
+  const product = findProduct(id);
   const { add, qtyOf } = useCart();
   const ref = useRef(null);
   if (!product) return null;
@@ -308,6 +320,7 @@ export default function BlogPost() {
   const headings = (post?.body || []).filter((b) => b.h).map((b) => ({ id: slugify(b.h), text: b.h }));
   const progress = useReadingProgress(bodyRef);
   const active = useActiveHeading(headings.map((h) => h.id));
+  const { products, categories, findProduct } = useCatalog();
   if (!post) return <NotFound />;
 
   const category = categories.find((c) => c.id === post.category);
@@ -319,10 +332,13 @@ export default function BlogPost() {
       ...[...json.matchAll(/\(\/product\/([\w-]+)\)/g)].map((m) => m[1]),
     ]),
   ];
-  const related = [
-    ...mentioned.map((id) => products.find((p) => p.id === id)).filter(Boolean),
+  let related = [
+    ...mentioned.map((id) => findProduct(id)).filter(Boolean),
     ...products.filter((p) => p.category === post.category && !mentioned.includes(p.id)),
   ].slice(0, 4);
+  // nothing related yet: show the newest products instead
+  const fromShop = !related.length;
+  if (fromShop) related = [...products].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 4);
   // most relevant articles first: same category, then posts that link here, then the newest
   const score = (p) =>
     (p.category === post.category ? 2 : 0) + (JSON.stringify(p.body).includes(`/blog/${slug}`) ? 1 : 0);
@@ -438,11 +454,11 @@ export default function BlogPost() {
           <div className="container">
             <div className="section__head section__head--row">
               <div>
-                <p className="eyebrow">Shop the article</p>
-                <h2>Mentioned in this guide</h2>
+                <p className="eyebrow">{fromShop ? "From the shop" : "Shop the article"}</p>
+                <h2>{fromShop ? "New in the shop" : "Mentioned in this guide"}</h2>
               </div>
-              <Link to={`/shop?cat=${category.id}`} className="link-arrow">
-                All {category.name} <Icon name="arrow" />
+              <Link to={category ? `/shop?cat=${category.id}` : "/shop"} className="link-arrow">
+                {category ? `All ${category.name}` : "Shop all"} <Icon name="arrow" />
               </Link>
             </div>
             <div className="grid">

@@ -3,12 +3,12 @@ import { useSeo } from "../seo.js";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCart, formatRs, loadOrders, loadOrder } from "../cart.jsx";
 import { shop } from "../data/shop.js";
+import { useCatalog } from "../catalog.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import ProductThumb from "../components/ProductThumb.jsx";
 import Icon from "../components/Icon.jsx";
 import { OrderItems, StatusTrack, formatOrderDate } from "../components/OrderParts.jsx";
 import { orderWhatsAppLink } from "./OrderConfirmed.jsx";
-import { products } from "../data/products.js";
 
 function useReorder() {
   const { reorder, openDrawer } = useCart();
@@ -23,6 +23,7 @@ export default function Orders() {
   useSeo({ title: "My Orders", description: "My Orders — Rizwan Stationer.", noindex: true });
   const [orders] = useState(loadOrders);
   const reorder = useReorder();
+  const { findProduct } = useCatalog();
 
   return (
     <>
@@ -52,7 +53,7 @@ export default function Orders() {
                       {o.items.slice(0, 4).map((i) => (
                         <ProductThumb
                           key={i.id}
-                          product={products.find((p) => p.id === i.id) || { category: i.category, images: i.image ? [i.image] : [] }}
+                          product={findProduct(i.id) || { category: i.category, images: i.image ? [i.image] : [] }}
                         />
                       ))}
                       {o.items.length > 4 && <span className="order-card__more">+{o.items.length - 4}</span>}

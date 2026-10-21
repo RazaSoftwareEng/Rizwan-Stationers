@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { useCart, formatRs, MAX_QTY } from "../cart.jsx";
-import { categories, stockStatus } from "../data/products.js";
+import { useCatalog, stockStatus } from "../catalog.jsx";
 import CategoryIcon from "./CategoryIcon.jsx";
 import Icon from "./Icon.jsx";
 import { flyToCart } from "../flyToCart.js";
 
 export default function ProductCard({ product }) {
   const { add, qtyOf, setQty, remove } = useCart();
+  const { categories } = useCatalog();
   const category = categories.find((c) => c.id === product.category);
   const url = `/product/${product.id}`;
   const photo = product.cutout || product.images?.[0];

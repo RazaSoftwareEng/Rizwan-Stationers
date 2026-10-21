@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
@@ -18,6 +18,10 @@ import Checkout from "./pages/Checkout.jsx";
 import OrderConfirmed from "./pages/OrderConfirmed.jsx";
 import Orders, { OrderDetail } from "./pages/Orders.jsx";
 
+// the admin dashboard has its own layout and loads only when visited
+const AdminApp = lazy(() => import("./admin/AdminApp.jsx"));
+const AdminLogin = lazy(() => import("./admin/AdminLogin.jsx"));
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -27,6 +31,18 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+  if (pathname === "/admin" || pathname.startsWith("/admin/") || pathname === "/admin-login") {
+    return (
+      <Suspense fallback={null}>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin/*" element={<AdminApp />} />
+        </Routes>
+      </Suspense>
+    );
+  }
   return (
     <>
       <ScrollToTop />

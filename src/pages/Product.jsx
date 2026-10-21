@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useSeo, absUrl, breadcrumbLd } from "../seo.js";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCart, formatRs, FREE_DELIVERY_FROM } from "../cart.jsx";
-import { categories, products, stockStatus } from "../data/products.js";
+import { useCatalog, stockStatus } from "../catalog.jsx";
+import CatalogState from "../components/CatalogState.jsx";
 import { shop } from "../data/shop.js";
 import { posts } from "../data/posts.js";
 import ProductCard from "../components/ProductCard.jsx";
@@ -71,9 +72,12 @@ function Gallery({ product }) {
 
 const clip = (text, n) => (text.length <= n ? text : text.slice(0, text.lastIndexOf(" ", n - 1)) + "…");
 
-function productSeo(product) {
-  if (!product) return { title: "Page Not Found", description: "This product could not be found.", noindex: true };
-  const category = categories.find((c) => c.id === product.category);
+function productSeo(product, categories, loading) {
+  if (!product)
+    return loading
+      ? { title: "Loading product", description: "Loading product details.", noindex: true }
+      : { title: "Page Not Found", description: "This product could not be found.", noindex: true };
+  const category = categories.find((c) => c.id === product.category) || { id: product.category, name: product.categoryName };
   const sub = category?.subs.find((s) => s.id === product.sub);
   const path = `/product/${product.id}`;
   const image = product.images?.[0] || product.cutout;
@@ -118,7 +122,8 @@ function productSeo(product) {
 
 export default function Product() {
   const { id } = useParams();
-  const product = products.find((p) => p.id === id);
+  const { products, categories, findProduct, status: catalogStatus } = useCatalog();
+  const product = findProduct(id);
   const { add, lines, openDrawer } = useCart();
   const navigate = useNavigate();
   const [qty, setLocalQty] = useState(1);
@@ -127,11 +132,21 @@ export default function Product() {
     setLocalQty(1);
   }, [id]);
 
-  useSeo(productSeo(product));
+  useSeo(productSeo(product, categories, catalogStatus === "loading"));
 
-  if (!product) return <NotFound />;
+  if (!product) {
+    if (catalogStatus === "loading" || catalogStatus === "error")
+      return (
+        <section className="section">
+          <div className="container">
+            <CatalogState />
+          </div>
+        </section>
+      );
+    return <NotFound />;
+  }
 
-  const category = categories.find((c) => c.id === product.category);
+  const category = categories.find((c) => c.id === product.category) || { id: product.category, name: product.categoryName };
   const sub = category?.subs.find((s) => s.id === product.sub);
   const related = products
     .filter((p) => p.id !== product.id && p.category === product.category)

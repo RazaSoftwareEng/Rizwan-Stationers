@@ -4,7 +4,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import Icon from "../components/Icon.jsx";
-import { categories, products } from "../data/products.js";
+import { useCatalog } from "../catalog.jsx";
+import CatalogState from "../components/CatalogState.jsx";
 
 const sorts = {
   featured: { label: "Featured", fn: (a, b) => Number(!!b.tag) - Number(!!a.tag) },
@@ -26,6 +27,7 @@ export default function Shop() {
     setQuery(qParam);
   }, [qParam]);
 
+  const { products, categories, status } = useCatalog();
   const current = categories.find((c) => c.id === cat);
   const currentSub = current?.subs.find((s) => s.id === sub);
 
@@ -36,8 +38,8 @@ export default function Shop() {
     description: currentSub
       ? `Shop ${currentSub.name.toLowerCase()} from our ${current.name} range at Rizwan Stationer, Lahore. Clear prices, live stock and delivery or pickup from Main Urdu Bazar.`
       : current
-      ? `Shop ${current.name.toLowerCase()} at Rizwan Stationer, Lahore — ${current.blurb.toLowerCase()}. Clear prices, live stock and delivery or pickup from Main Urdu Bazar.`
-      : "Browse fountain pens, notebooks, registers, desk organisers and school supplies at Rizwan Stationer, Lahore. Clear prices and delivery across Lahore.",
+      ? `Shop ${current.name.toLowerCase()} at Rizwan Stationer, Lahore — ${current.blurb}. Clear prices, live stock and delivery or pickup from Main Urdu Bazar.`
+      : "Browse our full range at Rizwan Stationer, Lahore — clear prices, live stock and delivery across Lahore or pickup from Main Urdu Bazar.",
     path: seoPath,
     // search-result pages are thin duplicates of the catalogue
     noindex: !!qParam,
@@ -55,7 +57,7 @@ export default function Shop() {
       (p) =>
         (cat === "all" || p.category === cat) &&
         (sub === "all" || p.sub === sub) &&
-        p.name.toLowerCase().includes(q),
+        (p.name.toLowerCase().includes(q) || p.categoryName.toLowerCase().includes(q)),
     )
     .sort(sorts[sort].fn);
 
@@ -120,7 +122,7 @@ export default function Shop() {
             </div>
           </div>
 
-          {current && (
+          {current?.subs.length > 0 && (
             <div className="subchips" role="group" aria-label={`Filter ${current.name}`}>
               {[{ id: "all", name: `All ${current.name}` }, ...current.subs].map((s) => (
                 <button
@@ -136,6 +138,10 @@ export default function Shop() {
             </div>
           )}
 
+          {status === "loading" || (status === "error" && !products.length) ? (
+            <CatalogState />
+          ) : (
+          <>
           <p className="result-count">
             {list.length} {list.length === 1 ? "product" : "products"}
           </p>
@@ -155,6 +161,8 @@ export default function Shop() {
                 </button>
               )}
             </div>
+          )}
+          </>
           )}
         </div>
       </section>

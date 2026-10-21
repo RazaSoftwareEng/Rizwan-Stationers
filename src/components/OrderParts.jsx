@@ -1,5 +1,5 @@
 import { formatRs, ORDER_STATUSES } from "../cart.jsx";
-import { products } from "../data/products.js";
+import { useCatalog } from "../catalog.jsx";
 import ProductThumb from "./ProductThumb.jsx";
 
 export function formatOrderDate(iso) {
@@ -29,10 +29,11 @@ export function StatusTrack({ status, pickup }) {
 }
 
 export function OrderItems({ items, total, delivery }) {
+  const { findProduct } = useCatalog();
   return (
     <ul className="order-items">
       {items.map((i) => {
-        const product = products.find((p) => p.id === i.id) || { category: i.category, images: i.image ? [i.image] : [] };
+        const product = findProduct(i.id) || { category: i.category, images: i.image ? [i.image] : [] };
         return (
           <li key={i.id}>
             <ProductThumb product={product} />

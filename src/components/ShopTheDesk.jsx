@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart, formatRs } from "../cart.jsx";
-import { products } from "../data/products.js";
+import { useCatalog } from "../catalog.jsx";
 import { DESK_IMAGE, deskSpots } from "../data/deskSpots.js";
 import ProductThumb from "./ProductThumb.jsx";
 import Icon from "./Icon.jsx";
@@ -9,17 +9,23 @@ import "./ShopTheDesk.css";
 
 const pct = (v, total) => `${(v / total) * 100}%`;
 
-// Resolve products once; drop any spot whose product id doesn't exist.
-const spots = deskSpots
-  .map((s) => ({ ...s, product: products.find((p) => p.id === s.id) }))
-  .filter((s) => s.product);
-
-// Big areas first so smaller items sitting on top of them stay hoverable.
-const byAreaDesc = [...spots].sort(
-  (a, b) => (b.box[2] - b.box[0]) * (b.box[3] - b.box[1]) - (a.box[2] - a.box[0]) * (a.box[3] - a.box[1]),
-);
-
+// Hidden until at least one desk item matches a product in the shop.
 export default function ShopTheDesk() {
+  const { products, findByName } = useCatalog();
+  const spots = useMemo(
+    () => deskSpots.map((s) => ({ ...s, product: findByName(s.name) })).filter((s) => s.product),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [products],
+  );
+  if (!spots.length) return null;
+  return <DeskStage spots={spots} />;
+}
+
+function DeskStage({ spots }) {
+  // Big areas first so smaller items sitting on top of them stay hoverable.
+  const byAreaDesc = [...spots].sort(
+    (a, b) => (b.box[2] - b.box[0]) * (b.box[3] - b.box[1]) - (a.box[2] - a.box[0]) * (a.box[3] - a.box[1]),
+  );
   const { add, qtyOf } = useCart();
   const [active, setActive] = useState(null);
   // where the price tag sits: follows the mouse, or pins to a dot for keyboard focus

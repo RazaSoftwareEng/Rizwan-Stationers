@@ -27,6 +27,14 @@ const paths = {
   ),
 };
 
+// any other category: a simple price tag
+const fallback = (
+  <>
+    <path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7a1 1 0 0 1 .7.3l7.8 7.8a1 1 0 0 1 0 1.4l-7.7 7.7a1 1 0 0 1-1.4 0l-7.8-7.8a1 1 0 0 1-.3-.7z" />
+    <circle cx="8" cy="8" r="1.4" />
+  </>
+);
+
 export default function CategoryIcon({ category, className = "cat-icon" }) {
   return (
     <svg
@@ -39,7 +47,7 @@ export default function CategoryIcon({ category, className = "cat-icon" }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      {paths[category]}
+      {paths[category] || fallback}
     </svg>
   );
 }

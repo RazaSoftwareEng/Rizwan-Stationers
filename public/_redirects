@@ -1,1 +1,6 @@
-/*    /index.html   200
+# Product API: the site calls same-origin /api/… and Netlify forwards it (no CORS needed).
+/api/*      https://api.qomunix.com/api/:splat     200!
+/media/*    https://api.qomunix.com/media/:splat   200!
+
+# Single-page app: everything else is handled by React Router
+/*          /index.html                            200

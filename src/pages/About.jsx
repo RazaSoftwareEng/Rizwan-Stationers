@@ -3,7 +3,7 @@ import { useSeo, storeLd, breadcrumbLd } from "../seo.js";
 import PageHeader from "../components/PageHeader.jsx";
 import Icon from "../components/Icon.jsx";
 import CategoryIcon from "../components/CategoryIcon.jsx";
-import { categories } from "../data/products.js";
+import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
 
 const values = [
@@ -12,14 +12,15 @@ const values = [
   { icon: "chat", title: "Help at the counter", text: "Bring your school or office list — we'll put it together for you." },
 ];
 
-const facts = [
-  { value: "1995", label: "Year we opened" },
-  { value: "30+", label: "Years in Urdu Bazar" },
-  { value: String(categories.length), label: "Collections" },
-  { value: String(categories.reduce((n, c) => n + c.subs.length, 0)), label: "Product ranges" },
-];
 
 export default function About() {
+  const { categories, products } = useCatalog();
+  const facts = [
+    { value: "1995", label: "Year we opened" },
+    { value: "30+", label: "Years in Urdu Bazar" },
+    { value: String(categories.length), label: "Collections" },
+    { value: String(products.length), label: "Products online" },
+  ];
   useSeo({
     title: "About Us — Since 1995 in Urdu Bazar",
     description:
@@ -98,7 +99,7 @@ export default function About() {
         <div className="container">
           <div className="section__head section__head--center">
             <p className="eyebrow">What we stock</p>
-            <h2>Four collections, one counter</h2>
+            <h2>{categories.length ? `${categories.length} ${categories.length === 1 ? "collection" : "collections"}, one counter` : "Everything at one counter"}</h2>
           </div>
           <div className="stock">
             {categories.map((c) => (
@@ -110,11 +111,17 @@ export default function About() {
                   {c.name}
                 </Link>
                 <ul>
-                  {c.subs.map((s) => (
-                    <li key={s.id}>
-                      <Link to={`/shop?cat=${c.id}&sub=${s.id}`}>{s.name}</Link>
+                  {c.subs.length ? (
+                    c.subs.map((s) => (
+                      <li key={s.id}>
+                        <Link to={`/shop?cat=${c.id}&sub=${s.id}`}>{s.name}</Link>
+                      </li>
+                    ))
+                  ) : (
+                    <li>
+                      <Link to={`/shop?cat=${c.id}`}>{c.blurb} — view all</Link>
                     </li>
-                  ))}
+                  )}
                 </ul>
               </div>
             ))}
