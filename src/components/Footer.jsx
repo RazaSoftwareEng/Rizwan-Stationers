@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { shop } from "../data/shop.js";
 import { useCatalog } from "../catalog.jsx";
 import Icon from "./Icon.jsx";
+import { ordersEnabled } from "../orders.js";
 
 export default function Footer() {
   const { categories } = useCatalog();
@@ -36,6 +37,7 @@ export default function Footer() {
             <li><Link to="/blog">Blog</Link></li>
             <li><Link to="/contact">Contact</Link></li>
             <li><Link to="/cart">Cart</Link></li>
+            {ordersEnabled && <li><Link to="/track">Track Order</Link></li>}
             <li><Link to="/orders">My Orders</Link></li>
           </ul>
         </div>

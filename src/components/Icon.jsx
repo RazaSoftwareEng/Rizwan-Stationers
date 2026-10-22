@@ -14,6 +14,7 @@ const icons = {
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
+  download: <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />,
   truck: (
     <>
       <path d="M3 6.5h11v9H3zM14 9.5h4l3 3v3h-7" />

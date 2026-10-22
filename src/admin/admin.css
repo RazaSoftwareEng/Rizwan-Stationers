@@ -1667,3 +1667,88 @@
   width: 22px;
   height: 22px;
 }
+
+.adm-connect {
+  display: grid;
+  gap: 14px;
+  max-width: 640px;
+}
+.adm-connect h2 {
+  font-size: 1.15rem;
+  color: var(--navy);
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+.adm-code {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #e7ebf3;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* clickable stat cards */
+.adm-kpi--link {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.2s var(--ease),
+    box-shadow 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+.adm-kpi--link:hover,
+.adm-kpi--link:focus-visible {
+  border-color: var(--gold-soft);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+  outline: none;
+}
+.adm-kpi__go {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+.adm-kpi--link:hover .adm-kpi__go,
+.adm-kpi--link:focus-visible .adm-kpi__go {
+  opacity: 1;
+  transform: none;
+}
+@media (hover: none) {
+  .adm-kpi__go {
+    opacity: 0.7;
+    transform: none;
+  }
+}
+
+.adm-danger {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+}
+.adm-danger p {
+  font-size: 0.88rem;
+  color: #a2342a;
+}
+.adm-danger__open {
+  justify-self: start;
+  color: #a2342a;
+}
+.adm-danger__open:hover {
+  border-color: #d03b3b;
+}

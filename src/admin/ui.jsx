@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useCatalog } from "../catalog.jsx";
 
 const icons = {
@@ -46,6 +47,7 @@ const icons = {
     </>
   ),
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
   edit: <path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" />,
   star: <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z" />,
   trash: <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" />,
@@ -77,16 +79,26 @@ export function PageHead({ title, sub, children }) {
   );
 }
 
-export function Kpi({ icon, label, value, note, tone = "" }) {
-  return (
-    <div className={"adm-kpi " + (tone ? `adm-kpi--${tone}` : "")}>
+// a stat card; with `to` it's a link to the page behind the number
+export function Kpi({ icon, label, value, note, tone = "", to }) {
+  const cls = "adm-kpi " + (tone ? `adm-kpi--${tone}` : "") + (to ? " adm-kpi--link" : "");
+  const body = (
+    <>
       <span className="adm-kpi__icon">
         <AdminIcon name={icon} />
       </span>
       <span className="adm-kpi__label">{label}</span>
       <strong className="adm-kpi__value">{value}</strong>
       {note && <span className="adm-kpi__note">{note}</span>}
-    </div>
+      {to && <AdminIcon name="arrow" className="adm-kpi__go" />}
+    </>
+  );
+  return to ? (
+    <Link to={to} className={cls} aria-label={`${label}: ${value} — open`}>
+      {body}
+    </Link>
+  ) : (
+    <div className={cls}>{body}</div>
   );
 }
 

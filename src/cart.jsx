@@ -152,6 +152,11 @@ export function loadOrders() {
 export function saveOrder(order) {
   writeJSON(ORDERS_KEY, [order, ...loadOrders()].slice(0, 50));
 }
+export function removeOrder(number) {
+  const list = loadOrders().filter((o) => o.number !== number);
+  writeJSON(ORDERS_KEY, list);
+  return list;
+}
 export function updateOrderStatus(number, status) {
   const list = loadOrders().map((o) => (o.number === number ? { ...o, status } : o));
   writeJSON(ORDERS_KEY, list);

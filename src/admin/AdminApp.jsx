@@ -9,6 +9,8 @@ import Categories from "./Categories.jsx";
 import Orders from "./Orders.jsx";
 import { AdminIcon } from "./ui.jsx";
 import "./admin.css";
+import { AdminOrdersProvider } from "./ordersStore.jsx";
+import { adminSignOut } from "../orders.js";
 
 const tabs = [
   { to: "/admin", label: "Dashboard", icon: "grid", end: true },
@@ -41,7 +43,11 @@ function SyncStatus() {
 export default function AdminApp() {
   const { pathname, search } = useLocation();
   if (!getSession()) return <Navigate to={`/admin-login?next=${encodeURIComponent(pathname + search)}`} replace />;
-  return <DashboardShell />;
+  return (
+    <AdminOrdersProvider>
+      <DashboardShell />
+    </AdminOrdersProvider>
+  );
 }
 
 function DashboardShell() {
@@ -51,6 +57,7 @@ function DashboardShell() {
   const session = getSession();
   function signOut() {
     logout();
+    adminSignOut();
     navigate("/admin-login", { replace: true });
   }
 

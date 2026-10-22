@@ -17,6 +17,7 @@ import Product from "./pages/Product.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import OrderConfirmed from "./pages/OrderConfirmed.jsx";
 import Orders, { OrderDetail } from "./pages/Orders.jsx";
+import TrackOrder from "./pages/TrackOrder.jsx";
 
 // the admin dashboard has its own layout and loads only when visited
 const AdminApp = lazy(() => import("./admin/AdminApp.jsx"));
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmed" element={<OrderConfirmed />} />
+          <Route path="/track" element={<TrackOrder />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:number" element={<OrderDetail />} />
           <Route path="*" element={<NotFound />} />

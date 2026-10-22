@@ -9,6 +9,7 @@ import ProductThumb from "../components/ProductThumb.jsx";
 import Icon from "../components/Icon.jsx";
 import { OrderItems, StatusTrack, formatOrderDate } from "../components/OrderParts.jsx";
 import { orderWhatsAppLink } from "./OrderConfirmed.jsx";
+import InvoiceButton from "../components/InvoiceButton.jsx";
 
 function useReorder() {
   const { reorder, openDrawer } = useCart();
@@ -126,6 +127,7 @@ export function OrderDetail() {
           <StatusTrack status={order.status} pickup={pickup} />
 
           <OrderItems items={order.items} total={order.total} delivery={order.delivery} />
+          <InvoiceButton order={order} className="btn btn--ghost order-detail__invoice" />
 
           <div className="confirm__details">
             <div>

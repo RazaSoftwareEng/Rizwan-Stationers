@@ -5,6 +5,7 @@ import { useCart, formatRs, FREE_DELIVERY_FROM, saveOrder, loadCustomer, saveCus
 import { shop } from "../data/shop.js";
 import ProductThumb from "../components/ProductThumb.jsx";
 import Icon from "../components/Icon.jsx";
+import { ordersEnabled, placeOrder, fromRow } from "../orders.js";
 
 const cities = ["Lahore", "Karachi", "Islamabad", "Rawalpindi", "Faisalabad", "Multan", "Other"];
 
@@ -55,6 +56,7 @@ export default function Checkout() {
   const [remember, setRemember] = useState(true);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   if (!lines.length) {
     return (
@@ -78,8 +80,9 @@ export default function Checkout() {
   const freeDelivery = pickup || (form.city === "Lahore" && total >= FREE_DELIVERY_FROM);
   const deliveryText = pickup ? "Free (pickup)" : freeDelivery ? "Free" : "Confirmed on call";
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
+    setSubmitError("");
     const found = validate(form);
     setErrors(found);
     if (Object.keys(found).length) {
@@ -87,8 +90,25 @@ export default function Checkout() {
       return;
     }
     setSubmitting(true);
-    // TODO(backend): replace with an API call that creates the order and returns its number.
-    const order = {
+    let order;
+    if (ordersEnabled) {
+      // saved in Supabase so the shop sees it and the customer can track it
+      try {
+        const saved = await placeOrder(form, lines);
+        order = {
+          ...fromRow({ ...saved, customer_name: form.name, phone: form.phone, email: form.email, method: form.method, address: form.address, city: form.city, notes: form.notes }),
+          online: true,
+        };
+      } catch (err) {
+        // service not reachable → keep the order in this browser (below) instead of losing the sale
+        if (err.code !== "unavailable") {
+          setSubmitting(false);
+          setSubmitError(err.message);
+          return;
+        }
+      }
+    }
+    if (!order) order = {
       number: "RS-" + Date.now().toString().slice(-6),
       date: new Date().toISOString(),
       status: "Received",
@@ -248,6 +268,11 @@ export default function Checkout() {
               <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
               Save my details for next time
             </label>
+            {submitError && (
+              <p className="checkout__error" role="alert">
+                {submitError}
+              </p>
+            )}
             <button type="submit" className="btn btn--gold btn--lg btn--block" disabled={submitting}>
               {submitting ? "Placing order…" : `Place order — ${formatRs(total)}`}
             </button>

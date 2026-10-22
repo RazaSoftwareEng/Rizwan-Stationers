@@ -5,6 +5,8 @@ import { shop } from "../data/shop.js";
 import Icon from "../components/Icon.jsx";
 import { OrderItems, StatusTrack } from "../components/OrderParts.jsx";
 import { Steps } from "./Checkout.jsx";
+import InvoiceButton from "../components/InvoiceButton.jsx";
+import { ordersEnabled } from "../orders.js";
 
 export function orderWhatsAppLink(order) {
   const c = order.customer;
@@ -52,6 +54,16 @@ export default function OrderConfirmed() {
             {pickup ? " and let you know when it's ready to collect." : " before dispatch."}
           </p>
 
+          <p className="confirm__emailed">
+            <Icon name="download" /> Your invoice <strong>Invoice-{order.number}.pdf</strong> has been downloaded to this device.
+          </p>
+          {ordersEnabled && order.online && (
+          <p className="confirm__track">
+            Keep your order number <strong>{order.number}</strong> — you can{" "}
+            <Link to={`/track?n=${encodeURIComponent(order.number)}`}>check its status any time</Link> with your phone number.
+          </p>
+          )}
+
           <StatusTrack status={order.status} pickup={pickup} />
 
           <OrderItems items={order.items} total={order.total} delivery={order.delivery} />
@@ -71,9 +83,13 @@ export default function OrderConfirmed() {
             <a className="btn btn--gold btn--lg" href={orderWhatsAppLink(order)} target="_blank" rel="noopener noreferrer">
               <Icon name="chat" /> Send order on WhatsApp
             </a>
-            <Link to="/orders" className="btn btn--ghost btn--lg">My orders</Link>
+            <InvoiceButton order={order} auto />
           </div>
-          <Link to="/shop" className="text-btn">Continue shopping</Link>
+          <p className="confirm__more">
+            <Link to="/orders" className="text-btn">My orders</Link>
+            <span aria-hidden="true">·</span>
+            <Link to="/shop" className="text-btn">Continue shopping</Link>
+          </p>
         </div>
       </div>
     </section>

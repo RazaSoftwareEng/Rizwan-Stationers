@@ -1,7 +1,8 @@
-import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 import { useCatalog } from "../catalog.jsx";
-import { formatRs, loadOrders, ORDER_STATUSES } from "../cart.jsx";
+import { formatRs, ORDER_STATUSES } from "../cart.jsx";
+import { useAdminOrders, OrdersGate } from "./ordersStore.jsx";
 import { PageHead, Kpi, Empty, CatalogNotice, formatDateTime } from "./ui.jsx";
 import { AreaChart, BarChart, Donut, ColumnChart, CHART } from "./charts.jsx";
 
@@ -52,13 +53,13 @@ function priceBands(products) {
 
 export default function Dashboard() {
   const { products, categories } = useCatalog();
-  const [orders] = useState(loadOrders);
+  const { orders, status: ordersStatus } = useAdminOrders();
   const navigate = useNavigate();
 
   const inStock = products.filter((p) => p.inStock).length;
   const out = products.length - inStock;
   const revenue = orders.reduce((n, o) => n + (o.total || 0), 0);
-  const open = orders.filter((o) => o.status !== "Delivered").length;
+  const open = orders.filter((o) => o.status !== "Delivered" && o.status !== "Cancelled").length;
   const sales = salesByDay(orders);
   const last14 = sales.reduce((n, d) => n + d.value, 0);
   const outList = products.filter((p) => !p.inStock).slice(0, 6);
@@ -67,13 +68,14 @@ export default function Dashboard() {
     <>
       <PageHead title="Dashboard" sub="A quick look at the shop today." />
       <CatalogNotice />
+      {ordersStatus !== "ready" && <OrdersGate />}
 
       <div className="adm-kpis">
-        <Kpi icon="box" label="Products" value={products.length} note={`${inStock} in stock`} />
-        <Kpi icon="alert" label="Out of stock" value={out} note={out ? "Needs restocking" : "All products available"} tone={out ? "warn" : "ok"} />
-        <Kpi icon="tag" label="Categories" value={categories.length} />
-        <Kpi icon="receipt" label="Orders" value={orders.length} note={`${open} open`} />
-        <Kpi icon="money" label="Order value" value={formatRs(revenue)} note={orders.length ? `Avg ${formatRs(Math.round(revenue / orders.length))}` : "No orders yet"} />
+        <Kpi icon="box" label="Products" value={products.length} note={`${inStock} in stock`} to="/admin/products" />
+        <Kpi icon="alert" label="Out of stock" value={out} note={out ? "Needs restocking" : "All products available"} tone={out ? "warn" : "ok"} to="/admin/products?stock=out" />
+        <Kpi icon="tag" label="Categories" value={categories.length} to="/admin/categories" />
+        <Kpi icon="receipt" label="Orders" value={orders.length} note={`${open} open`} to="/admin/orders" />
+        <Kpi icon="money" label="Order value" value={formatRs(revenue)} note={orders.length ? `Avg ${formatRs(Math.round(revenue / orders.length))}` : "No orders yet"} to="/admin/orders" />
       </div>
 
       <div className="adm-grid-main">

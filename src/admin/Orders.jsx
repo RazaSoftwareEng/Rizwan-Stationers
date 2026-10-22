@@ -1,10 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
-import { formatRs, loadOrders, updateOrderStatus, ORDER_STATUSES } from "../cart.jsx";
+import { formatRs } from "../cart.jsx";
+import { ADMIN_STATUSES as ORDER_STATUSES, ordersEnabled } from "../orders.js";
+import { useAdminOrders, OrdersGate } from "./ordersStore.jsx";
 import { PageHead, AdminIcon, Empty, formatDateTime } from "./ui.jsx";
 
 const itemCount = (o) => (o.items || []).reduce((n, i) => n + (i.qty || 0), 0);
 
-function OrderPanel({ order, onClose, onStatus }) {
+function OrderPanel({ order, onClose, onStatus: change, onDelete }) {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  async function doDelete() {
+    setDeleting(true);
+    setSaveError("");
+    try {
+      await onDelete(order.number);
+      onClose();
+    } catch (err) {
+      setSaveError(err.message || "Couldn't delete the order.");
+      setDeleting(false);
+      setConfirming(false);
+    }
+  }
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  async function onStatus(number, s) {
+    setSaving(true);
+    setSaveError("");
+    try {
+      await change(number, s);
+    } catch (err) {
+      setSaveError(err.message || "Couldn't save the status.");
+    }
+    setSaving(false);
+  }
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -28,12 +56,15 @@ function OrderPanel({ order, onClose, onStatus }) {
 
         <label className="adm-field">
           <span>Status</span>
-          <select className="adm-select" value={order.status} onChange={(e) => onStatus(order.number, e.target.value)}>
+          <select className="adm-select" value={order.status} onChange={(e) => onStatus(order.number, e.target.value)} disabled={saving}>
             {ORDER_STATUSES.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
         </label>
+
+        {saveError && <small className="adm-field__error">{saveError}</small>}
+        {saving && <small className="adm-muted">Saving…</small>}
 
         <h3>Customer</h3>
         <dl className="adm-dl">
@@ -86,13 +117,37 @@ function OrderPanel({ order, onClose, onStatus }) {
             <span>{formatRs(order.total || 0)}</span>
           </li>
         </ul>
+
+        <div className="adm-danger">
+          {confirming ? (
+            <>
+              <p>
+                Delete order <strong>{order.number}</strong> for good? The customer won't be able to track it any more. This can't be undone.
+              </p>
+              <div className="adm-form__actions">
+                <button type="button" className="adm-btn adm-btn--ghost" onClick={() => setConfirming(false)} disabled={deleting}>
+                  Cancel
+                </button>
+                <button type="button" className="adm-btn adm-btn--danger" onClick={doDelete} disabled={deleting}>
+                  <AdminIcon name="trash" />
+                  {deleting ? "Deleting…" : "Delete order"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <button type="button" className="adm-btn adm-btn--ghost adm-danger__open" onClick={() => setConfirming(true)}>
+              <AdminIcon name="trash" />
+              Delete order
+            </button>
+          )}
+        </div>
       </aside>
     </div>
   );
 }
 
 export default function Orders() {
-  const [orders, setOrders] = useState(loadOrders);
+  const { orders, changeStatus, reload, remove } = useAdminOrders();
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
   const [openNumber, setOpenNumber] = useState(null);
@@ -111,14 +166,23 @@ export default function Orders() {
 
   return (
     <>
-      <PageHead title="Orders" sub={`${orders.length} orders`} />
-      <div className="adm-note">
-        <AdminIcon name="lock" />
-        <span>
-          There's no orders API yet, so this lists orders placed through checkout in <strong>this browser</strong>. Once the
-          orders endpoint is connected, every order will show here.
-        </span>
-      </div>
+      <PageHead title="Orders" sub={`${orders.length} orders${ordersEnabled ? " · live from Supabase" : ""}`}>
+        {ordersEnabled && (
+          <button type="button" className="adm-btn adm-btn--ghost" onClick={reload}>
+            <AdminIcon name="refresh" />
+            Refresh
+          </button>
+        )}
+      </PageHead>
+      {!ordersEnabled && (
+        <div className="adm-note">
+          <AdminIcon name="lock" />
+          <span>
+            Supabase isn't configured, so this lists orders placed through checkout in <strong>this browser</strong> only.
+          </span>
+        </div>
+      )}
+      <OrdersGate>
 
       <div className="adm-card">
         <div className="adm-filters">
@@ -173,11 +237,14 @@ export default function Orders() {
         )}
       </div>
 
+      </OrdersGate>
+
       {open && (
         <OrderPanel
           order={open}
           onClose={() => setOpenNumber(null)}
-          onStatus={(number, s) => setOrders(updateOrderStatus(number, s))}
+          onStatus={changeStatus}
+          onDelete={remove}
         />
       )}
     </>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useSeo } from "../seo.js";
 import { login, getSession, rememberedEmail } from "./auth.js";
+import { ordersEnabled, adminSignIn } from "../orders.js";
 import { AdminIcon } from "./ui.jsx";
 import "./admin.css";
 
@@ -29,6 +30,8 @@ export default function AdminLogin() {
     setError("");
     try {
       await login(email, password, remember);
+      // same account for orders, when it exists in Supabase too (otherwise the Orders tab asks once)
+      if (ordersEnabled && email.includes("@")) await adminSignIn(email, password).catch(() => {});
       navigate(next, { replace: true });
     } catch (err) {
       setBusy(false);

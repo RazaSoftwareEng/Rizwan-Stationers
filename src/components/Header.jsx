@@ -4,9 +4,11 @@ import { useCart, formatRs, FREE_DELIVERY_FROM } from "../cart.jsx";
 import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
 import Icon from "./Icon.jsx";
+import { ordersEnabled } from "../orders.js";
 import CategoryIcon from "./CategoryIcon.jsx";
 
 const pages = [
+  ...(ordersEnabled ? [{ to: "/track", label: "Track Order" }] : []),
   { to: "/blog", label: "Blog" },
   { to: "/about", label: "About Us" },
   { to: "/contact", label: "Contact" },
