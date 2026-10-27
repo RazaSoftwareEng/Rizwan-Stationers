@@ -4,6 +4,7 @@ import { useCatalog, stockStatus } from "../catalog.jsx";
 import { showcase } from "../data/showcase.js";
 import { useCart, formatRs } from "../cart.jsx";
 import { flyToCart } from "../flyToCart.js";
+import { useCutout } from "../useCutout.js";
 import Icon from "./Icon.jsx";
 import "./PenShowcase.css";
 
@@ -30,16 +31,36 @@ const clamp01 = (v) => Math.min(1, Math.max(0, v));
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-// Shows the pens that exist in the shop (matched by name); hidden when none do.
+// how many of the newest products the carousel shows
+const MAX_ITEMS = 12;
+// glow colours for products without their own entry in data/showcase.js
+const GLOWS = ["#d9bf85", "#3d7bff", "#e79bb0", "#22b35a", "#ff7a1a", "#b0334a", "#5cc2ff", "#e2b84f"];
+
+// The newest products with a photo (up to 12). A product listed in data/showcase.js uses its
+// prepared upright cut-out and glow colour; any other product uses its own photo, cut out in the browser.
 export default function PenShowcase() {
-  const { products, findByName } = useCatalog();
-  const items = useMemo(
-    () => showcase.map((s) => ({ ...s, product: findByName(s.name) })).filter((s) => s.product),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [products],
-  );
+  const { products } = useCatalog();
+  const items = useMemo(() => {
+    const prepared = new Map(showcase.map((s) => [slug(s.name), s]));
+    return [...products]
+      .filter((p) => p.images?.[0])
+      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      .slice(0, MAX_ITEMS)
+      .map((p, i) => {
+        const s = prepared.get(slug(p.name));
+        return s ? { ...s, id: p.id, product: p } : { id: p.id, product: p, img: p.images[0], auto: true, glow: GLOWS[i % GLOWS.length] };
+      });
+  }, [products]);
   if (!items.length) return null;
   return <Showcase items={items} />;
+}
+
+const slug = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+// product photo for a slide: prepared cut-outs as they are, other photos with the white backdrop removed
+function SlideImg({ item }) {
+  const cut = useCutout(item.auto ? item.img : null);
+  return <img src={item.auto ? cut || item.img : item.img} alt="" draggable="false" className={item.auto && !cut ? "is-raw" : undefined} />;
 }
 
 // The section is pinned while the page scrolls past it; scroll progress turns the pen row.
@@ -257,7 +278,7 @@ function Showcase({ items }) {
                   aria-label={i === active ? `View ${it.product.name}` : undefined}
                 >
                   <span className="pens__float">
-                    <img src={it.img} alt="" draggable="false" />
+                    <SlideImg item={it} />
                   </span>
                 </a>
               ))}

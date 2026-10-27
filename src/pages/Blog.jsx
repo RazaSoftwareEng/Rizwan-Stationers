@@ -42,7 +42,6 @@ export default function Blog() {
   const topics = ["All", ...new Set(posts.map((p) => p.topic))];
   const [topic, setTopic] = useState("All");
   const list = posts.filter((p) => topic === "All" || p.topic === topic);
-  const [lead, ...rest] = list;
 
   return (
     <>
@@ -68,23 +67,9 @@ export default function Blog() {
             ))}
           </div>
 
-          {lead && (
-            <Link to={`/blog/${lead.slug}`} className="post-feature">
-              <PostCover post={lead} />
-              <div className="post-feature__body">
-                <Meta post={lead} />
-                <h2>{lead.title}</h2>
-                <p>{lead.excerpt}</p>
-                <span className="link-arrow">
-                  Read article <Icon name="arrow" />
-                </span>
-              </div>
-            </Link>
-          )}
-
-          {rest.length > 0 && (
+          {list.length > 0 && (
             <div className="post-grid">
-              {rest.map((post) => (
+              {list.map((post) => (
                 <Link key={post.slug} to={`/blog/${post.slug}`} className="post-card">
                   <PostCover post={post} />
                   <div className="post-card__body">

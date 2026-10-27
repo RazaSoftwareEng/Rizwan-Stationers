@@ -101,7 +101,7 @@
   height: 22px;
 }
 .ba__bars rect {
-  fill: #14254a;
+  fill: var(--navy);
 }
 .ba__hint {
   position: absolute;

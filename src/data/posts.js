@@ -16,6 +16,144 @@
 // `takeaways` shows as a summary box at the top; `next` is the article suggested at the end.
 const raw = [
   {
+    slug: "how-to-choose-the-right-ball-pen",
+    title: "How to choose the right ball pen for school, office and everyday use",
+    excerpt:
+      "Tip size, ink, grip and body — a simple guide to picking a ball pen that writes smoothly and lasts, whatever your budget.",
+    topic: "Writing Tips",
+    category: "ball-pens",
+    date: "2026-10-27",
+    next: "ball-pens-in-bulk-for-office-and-school",
+    takeaways: [
+      "Pick the tip size for the job: 0.5 mm for neat small writing, 0.7–1.0 mm for everyday notes.",
+      "Gel-feel ink writes darker and smoother; standard ballpoint ink dries fastest and smudges least.",
+      "A soft grip matters most for long writing sessions — exams, registers, accounts.",
+      "Metal bodies last for years and make a smart gift; plastic stick pens are best value for daily use.",
+    ],
+    body: [
+      { p: "The ball pen is the most-used thing on any desk. Students write pages of notes with one every day, shopkeepers fill registers, and offices go through boxes of them each month. Yet most people just grab whichever pen is nearest — and then wonder why their hand aches or the ink skips halfway through an exam." },
+      { p: "Choosing well takes about a minute once you know what to look for. Here's what we ask customers at the counter in Urdu Bazar, and the pens we suggest for each kind of writer." },
+
+      { h: "1. Start with the tip size" },
+      { p: "The number on a ball pen — 0.5 mm, 0.7 mm, 1.0 mm — is the size of the ball at the tip. It decides how thick your line is and how the pen feels on the page." },
+      { table: {
+        head: ["Tip", "Line", "Best for"],
+        rows: [
+          ["0.5 mm (fine)", "Thin and neat", "Small handwriting, maths, diaries, forms"],
+          ["0.7 mm (medium)", "Standard", "Everyday notes, registers, office work"],
+          ["1.0 mm (bold)", "Thick and dark", "Signatures, labels, quick notes"],
+        ],
+      } },
+      { p: "If your handwriting is small or you fill in a lot of forms, a fine tip like the [Fine Point Ball Pen — 0.5 mm Blue](/product/fine-point-ball-pen-0-5-mm-blue-15) keeps every letter clear. For everyday notes, a medium tip such as the [Everyday Ball Pen — Blue](/product/everyday-ball-pen-blue-18) is the reliable all-rounder." },
+      { product: "fine-point-ball-pen-0-5-mm-blue-15", note: "A crisp 0.5 mm line for neat handwriting, maths and forms." },
+
+      { h: "2. Choose the ink" },
+      { list: [
+        "**Standard ballpoint ink** — oil-based, dries almost instantly and rarely smudges. Ideal for left-handed writers and for exams.",
+        "**Gel-feel ink** — glides with less pressure and gives a darker line. Great for long notes, but give it a second to dry.",
+        "**Colours** — blue and black for school and office, red for marking and corrections.",
+      ] },
+      { p: "If you write a lot and want the smoothest feel, try the [Gel-Feel Smooth Writer — Black](/product/gel-feel-smooth-writer-black-12). For classic everyday ink, the [Everyday Ball Pen](/shop?cat=ball-pens) comes in [blue](/product/everyday-ball-pen-blue-18), [black](/product/everyday-ball-pen-black-17) and [red](/product/everyday-ball-pen-red-16)." },
+      { tip: "Most schools and exam boards ask for blue or black ink. Keep one of each in the pencil case, plus a red pen for corrections.", title: "For students" },
+
+      { h: "3. Cap or click?" },
+      { p: "Capped pens are simple and cheap — perfect for classrooms. Retractable pens are faster to use and can't leave ink marks in a pocket or bag, which makes them the favourite for offices, shops and counters." },
+      { p: "The [Retractable Click Pen](/product/retractable-click-pen-black-14) comes in [black](/product/retractable-click-pen-black-14) and [blue](/product/retractable-click-pen-blue-13). Need more than one colour on the go? The [4-Colour Multi Ball Pen](/product/4-colour-multi-ball-pen-7) puts four inks in one body — handy for teachers, students colour-coding notes, and anyone who marks up documents." },
+
+      { h: "4. Feel the grip and the weight" },
+      { p: "Grip is what decides whether a pen is still comfortable after an hour. A soft rubber grip stops your fingers slipping and reduces pressure. A slightly heavier pen lets its own weight do the work, so you press less." },
+      { list: [
+        "For children learning to write, a chunky soft grip helps — the [Kids Grip Ball Pen pastel pack](/product/kids-grip-ball-pen-pastel-pack-of-5-6) is made for small hands.",
+        "For long office days, a balanced metal pen like the [Metal Body Ball Pen — Silver](/product/metal-body-ball-pen-silver-11) or [Gunmetal](/product/metal-body-ball-pen-gunmetal-10) feels steady and lasts for years.",
+        "For tablet and phone users, the [Stylus Ball Pen 2-in-1](/product/stylus-ball-pen-2-in-1-navy-3) writes on paper and taps on screens.",
+      ] },
+
+      { h: "5. For gifts and signatures" },
+      { p: "A pen makes a thoughtful gift for a new job, an exam result or a teacher. Look for a weighted metal body, a smooth twist mechanism and a finish that feels special in the hand." },
+      { product: "executive-ball-pen-black-chrome-9", note: "Black and chrome with a weighted body — a smart pen for signing and gifting." },
+      { p: "The [Executive Ball Pen — Rose Gold](/product/executive-ball-pen-rose-gold-8) is another favourite for gifts. If the person loves writing, a [fountain pen](/blog/choosing-your-first-fountain-pen) is an even more personal choice." },
+
+      { h: "Quick picks" },
+      { table: {
+        head: ["You need…", "Try this"],
+        rows: [
+          ["Neat, small handwriting", "[Fine Point 0.5 mm](/product/fine-point-ball-pen-0-5-mm-blue-15)"],
+          ["Smooth, dark writing", "[Gel-Feel Smooth Writer](/product/gel-feel-smooth-writer-black-12)"],
+          ["Fast use at a counter", "[Retractable Click Pen](/product/retractable-click-pen-blue-13)"],
+          ["Several colours in one", "[4-Colour Multi Ball Pen](/product/4-colour-multi-ball-pen-7)"],
+          ["A gift or for signatures", "[Executive Ball Pen](/product/executive-ball-pen-black-chrome-9)"],
+        ],
+      } },
+      { p: "Buying for a whole class or office? Our guide to [buying ball pens in bulk](/blog/ball-pens-in-bulk-for-office-and-school) shows how to save without ending up with pens nobody likes. Or browse every [ball pen](/shop?cat=ball-pens) in the shop." },
+    ],
+  },
+  {
+    slug: "ball-pens-in-bulk-for-office-and-school",
+    title: "Buying ball pens in bulk for your office or school — a practical guide",
+    excerpt:
+      "How many pens you really need, which ones to buy, and how to stop them disappearing — so a box of 20 lasts as long as it should.",
+    topic: "Office & School",
+    category: "ball-pens",
+    date: "2026-10-27",
+    next: "how-to-choose-the-right-ball-pen",
+    takeaways: [
+      "Plan roughly 2 pens per person per month for busy offices and classrooms.",
+      "Buy value boxes for everyday use and a few better pens for signing and front desks.",
+      "Mix colours deliberately: mostly blue or black, a few red for marking.",
+      "Store spares in one place and hand them out — it halves how many go missing.",
+    ],
+    body: [
+      { p: "Pens are a small cost, but in an office, school or shop they add up quickly — and nothing slows a day down like hunting for one that works. Buying in bulk saves money and time, as long as you buy the right mix." },
+      { p: "Here's how we help offices, schools and shops in Lahore plan their pen order, and the boxes and pens that work best." },
+
+      { h: "How many pens do you actually need?" },
+      { p: "A good starting point is about **two pens per person per month** in a busy office or classroom, and one per month for lighter use. Pens get lost, lent out and left in pockets far more often than they run out of ink." },
+      { table: {
+        head: ["Place", "People", "Pens a month (approx.)"],
+        rows: [
+          ["Small shop / counter", "2–4", "5–10"],
+          ["Office", "10", "15–20"],
+          ["Classroom", "30 students", "40–60"],
+        ],
+      } },
+      { tip: "Order for one month first, then adjust. You'll quickly see how fast your team really gets through pens.", title: "Start small" },
+
+      { h: "Choose a value box for everyday use" },
+      { p: "For daily writing — registers, receipts, notes and homework — a value box gives the lowest price per pen. Pick a single colour box if everyone uses the same ink, or an assorted box if you need a mix." },
+      { product: "office-value-pack-blue-box-of-20-5", note: "Twenty reliable blue ball pens — the everyday choice for offices and classrooms." },
+      { p: "Need red and black as well? The [Office Value Pack — Assorted](/product/office-value-pack-assorted-box-of-20-4) mixes colours in one box. For single pens to top up, the [Everyday Ball Pen](/product/everyday-ball-pen-blue-18) matches the same everyday quality." },
+
+      { h: "Get the colour mix right" },
+      { list: [
+        "**Mostly blue or black** — around 80% of what you buy. Most forms and exams ask for one of these.",
+        "**Some red** — about 10–15% for teachers, accounts and anyone checking work. The [Everyday Ball Pen — Red](/product/everyday-ball-pen-red-16) is ideal.",
+        "**A few multi-colour pens** — for planners and teachers, the [4-Colour Multi Ball Pen](/product/4-colour-multi-ball-pen-7) replaces four separate pens.",
+      ] },
+
+      { h: "Keep better pens where they're seen" },
+      { p: "The pen on your front desk or used to sign a contract says something about your business. Keep a few better pens for reception, managers and signing — they're used less, so they last for years." },
+      { list: [
+        "[Retractable Click Pens](/product/retractable-click-pen-black-14) for counters — no lost caps, no ink in pockets.",
+        "[Metal Body Ball Pens](/product/metal-body-ball-pen-gunmetal-10) for the front desk — they look smart and don't wander off as easily.",
+        "An [Executive Ball Pen](/product/executive-ball-pen-rose-gold-8) for signing and as a thank-you gift for clients.",
+      ] },
+
+      { h: "Stop pens from disappearing" },
+      { steps: [
+        { title: "Keep spares in one place", text: "One drawer or box for unopened pens. Hand them out instead of leaving a full box on a shared desk." },
+        { title: "Give each desk a holder", text: "A pen holder on every desk means pens come back to the same spot. See our [10-minute desk routine](/blog/organise-your-desk-in-10-minutes)." },
+        { title: "Use retractable pens at counters", text: "Click pens with a clip are less likely to end up in a customer's pocket." },
+        { title: "Check stock monthly", text: "A quick count on the first of each month tells you exactly how many to reorder." },
+      ] },
+
+      { h: "Schools: plan by class" },
+      { p: "For schools, plan by class and term rather than by month. Our [back-to-school checklist](/blog/back-to-school-stationery-checklist) covers everything students need, and the [Kids Grip Ball Pen pack](/product/kids-grip-ball-pen-pastel-pack-of-5-6) is a comfortable choice for younger classes." },
+
+      { h: "Order the easy way" },
+      { p: "Send us your list on WhatsApp — how many people, which colours, and anything special — and we'll suggest the best mix and pack it ready to collect from Urdu Bazar or deliver in Lahore. Not sure which pen suits your team? Start with our guide to [choosing the right ball pen](/blog/how-to-choose-the-right-ball-pen), or browse all [ball pens](/shop?cat=ball-pens)." },
+    ],
+  },
+  {
     slug: "organise-your-desk-in-10-minutes",
     title: "How to organise your desk in 10 minutes",
     excerpt:

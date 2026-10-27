@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSeo, breadcrumbLd } from "../seo.js";
 import { Link, useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard.jsx";
+import ProductTable from "../components/ProductTable.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import Icon from "../components/Icon.jsx";
 import { useCatalog } from "../catalog.jsx";
@@ -21,6 +22,22 @@ export default function Shop() {
   const qParam = params.get("q") || "";
   const [query, setQuery] = useState(qParam);
   const [sort, setSort] = useState("featured");
+  // grid of cards or a compact table — remembered on this device
+  const [view, setView] = useState(() => {
+    try {
+      return localStorage.getItem("rs-shop-view") === "list" ? "list" : "grid";
+    } catch {
+      return "grid";
+    }
+  });
+  const pickView = (v) => {
+    setView(v);
+    try {
+      localStorage.setItem("rs-shop-view", v);
+    } catch {
+      /* ignore */
+    }
+  };
 
   // a search from the header arrives as ?q=
   useEffect(() => {
@@ -119,6 +136,14 @@ export default function Shop() {
                   <option key={k} value={k}>{s.label}</option>
                 ))}
               </select>
+              <div className="viewtoggle" role="group" aria-label="View">
+                <button type="button" className={view === "grid" ? "is-active" : ""} aria-pressed={view === "grid"} onClick={() => pickView("grid")} title="Grid view">
+                  <Icon name="grid" />
+                </button>
+                <button type="button" className={view === "list" ? "is-active" : ""} aria-pressed={view === "list"} onClick={() => pickView("list")} title="List view">
+                  <Icon name="list" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -147,11 +172,15 @@ export default function Shop() {
           </p>
 
           {list.length ? (
-            <div className="grid">
-              {list.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
+            view === "list" ? (
+              <ProductTable products={list} showCategory={cat === "all"} />
+            ) : (
+              <div className="grid">
+                {list.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            )
           ) : (
             <div className="empty">
               <p>{q ? `No products match “${query}”.` : "No products here yet — new stock is on the way."}</p>

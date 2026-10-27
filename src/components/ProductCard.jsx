@@ -37,7 +37,7 @@ export default function ProductCard({ product }) {
       </Link>
       <div className="card__body">
         <p className="card__cat">{category?.name}</p>
-        <h3 className="card__name">
+        <h3 className="card__name" title={product.name}>
           <Link to={url}>{product.name}</Link>
         </h3>
         <p className="card__price">

@@ -4,6 +4,7 @@ import { useCart, formatRs, FREE_DELIVERY_FROM } from "../cart.jsx";
 import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
 import Icon from "./Icon.jsx";
+import ThemeToggle from "./ThemeToggle.jsx";
 import { ordersEnabled } from "../orders.js";
 import CategoryIcon from "./CategoryIcon.jsx";
 
@@ -225,6 +226,7 @@ function MobileMenu({ open, onClose }) {
         </nav>
 
         <div className="mmenu__foot">
+          <ThemeToggle className="theme-switch--menu" label />
           <a href={`tel:${shop.phone.replace(/\s/g, "")}`}>
             <Icon name="phone" /> {shop.phone}
           </a>
@@ -290,6 +292,7 @@ export default function Header() {
                 {shop.phone}
               </span>
             </a>
+            <ThemeToggle className="header__theme" />
             <Link to="/orders" className="icon-btn header__orders" aria-label="My orders" title="My orders">
               <Icon name="box" />
             </Link>

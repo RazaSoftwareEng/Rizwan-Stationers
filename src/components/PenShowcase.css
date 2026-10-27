@@ -167,7 +167,7 @@
   place-items: center;
   border-radius: 50%;
   border: 1px solid rgba(217, 191, 133, 0.35);
-  background: rgba(14, 26, 54, 0.55);
+  background: rgba(var(--navy-deep-rgb), 0.55);
   color: #fff;
   backdrop-filter: blur(8px);
   cursor: pointer;
@@ -207,7 +207,7 @@
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #b9c3d6;
+  color: var(--on-dark-soft);
   white-space: nowrap;
   transition: opacity 0.4s var(--ease);
   pointer-events: none;
@@ -374,4 +374,13 @@
   .pens__slide img {
     transition: none;
   }
+}
+
+/* a product photo whose cut-out isn't ready (or isn't on white): show it as a soft card */
+.pens__slide img.is-raw {
+  border-radius: 14px;
+  background: #fff;
+  object-fit: contain;
+  max-width: 180px;
+  -webkit-box-reflect: none;
 }

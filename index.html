@@ -15,6 +15,15 @@
     <meta property="og:locale" content="en_PK" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#14254a" />
+    <script>
+      // apply the saved colour scheme before the page paints (see src/components/ThemeToggle.jsx)
+      try {
+        if (localStorage.getItem("rs-theme") === "burgundy") {
+          document.documentElement.dataset.theme = "burgundy";
+          document.querySelector('meta[name="theme-color"]').setAttribute("content", "#6e1423");
+        }
+      } catch (e) {}
+    </script>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
