@@ -7,6 +7,7 @@ import ProductCard from "../components/ProductCard.jsx";
 import CategoryIcon from "../components/CategoryIcon.jsx";
 import CatalogState from "../components/CatalogState.jsx";
 import CategoryTile from "../components/CategoryTile.jsx";
+import HeroSlider from "../components/HeroSlider.jsx";
 import Icon from "../components/Icon.jsx";
 import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
@@ -38,41 +39,8 @@ export default function Home() {
 
   return (
     <>
-      {/* ---- hero ---- */}
-      <section className="hero">
-        <div className="container hero__grid">
-          <div className="hero__copy">
-            <p className="eyebrow">Est. 1995 · Lahore</p>
-            <h1>
-              Fine stationery for work, school &amp; <em>the written word</em>
-            </h1>
-            <p className="hero__lead">
-              From fountain pens and leather journals to everyday notebooks and desk
-              organisers — everything your desk needs, chosen with care.
-            </p>
-            <div className="hero__actions">
-              <Link to="/shop" className="btn btn--lg">
-                Shop the collection
-                <Icon name="arrow" />
-              </Link>
-              <a href={listLink} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--lg">
-                Send your list
-              </a>
-            </div>
-            <ul className="hero__facts">
-              <li><strong>30+ years</strong><span>serving Lahore</span></li>
-              <li><strong>Free delivery</strong><span>in Lahore over {formatRs(FREE_DELIVERY_FROM)}</span></li>
-            </ul>
-          </div>
-
-          <div className="hero__media">
-            <div className="hero__frame">
-              <img src="/after.png" alt="A neatly organised desk with pens, notebook and a desk organiser" width="1670" height="941" />
-            </div>
-            <img className="hero__seal" src="/seal.png" alt="" width="120" height="120" />
-          </div>
-        </div>
-      </section>
+      {/* ---- hero slider ---- */}
+      <HeroSlider />
 
       {/* ---- perks ---- */}
       <section className="perks" aria-label="Why shop with us">
