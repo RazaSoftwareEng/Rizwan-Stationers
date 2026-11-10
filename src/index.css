@@ -5797,12 +5797,13 @@ a.mini-line__name:hover {
   --gold: #b8893a;
   --gold-strong: #9a6f28;
   --gold-soft: #e6c67f;
-  --cream: #f8efe6;
-  --paper: #fcf7f1;
-  --ink: #2b1518;
-  --muted: #6f5f60;
-  --line: #ecdccf;
-  --line-strong: #dcc5b2;
+  /* burgundy is the accent on warm white pages; text is a deep burgundy-brown, never flat black */
+  --cream: #faf4ef;
+  --paper: #ffffff;
+  --ink: #2a1519;
+  --muted: #6e5d5f;
+  --line: #f0e4dc;
+  --line-strong: #e2cfc2;
   --c-fine-writing: #6e1423;
   --c-organisers: #8c1d31;
   --c-paper: #9a6f28;
@@ -5811,10 +5812,45 @@ a.mini-line__name:hover {
   --on-dark: #e8d3cf;
   --on-dark-soft: #dbbfba;
   --on-dark-muted: #c7a29c;
-  --ink-soft: #3a2326;
-  --tint: #f8ece9;
-  --tint-line: #ecd3cd;
+  --ink-soft: #432a2e;
+  --tint: #f8eeee;
+  --tint-line: #ecd6d6;
 }
+/* burgundy theme polish: white header, rich burgundy bands with a gold glow, deeper soft shadows */
+:root[data-theme="burgundy"] {
+  --shadow-sm: 0 1px 2px rgba(110, 20, 35, 0.06), 0 4px 14px rgba(110, 20, 35, 0.06);
+  --shadow: 0 22px 44px -20px rgba(110, 20, 35, 0.32);
+  --shadow-lg: 0 34px 80px -30px rgba(74, 11, 23, 0.45);
+}
+:root[data-theme="burgundy"] .announce {
+  background: linear-gradient(90deg, var(--navy-deep), var(--navy) 50%, var(--navy-deep));
+}
+:root[data-theme="burgundy"] .header {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 0 var(--line), 0 10px 30px -24px rgba(110, 20, 35, 0.35);
+}
+:root[data-theme="burgundy"] .footer {
+  background:
+    radial-gradient(900px 400px at 85% 0%, rgba(230, 198, 127, 0.1), transparent 70%),
+    linear-gradient(180deg, var(--navy), var(--navy-deep));
+  border-top: 3px solid var(--gold);
+}
+:root[data-theme="burgundy"] .section--navy {
+  background:
+    radial-gradient(700px 360px at 50% 0%, rgba(230, 198, 127, 0.16), transparent 70%),
+    radial-gradient(900px 500px at 100% 100%, rgba(140, 29, 49, 0.6), transparent 70%),
+    linear-gradient(160deg, var(--navy-deep), var(--navy));
+}
+:root[data-theme="burgundy"] .card {
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="burgundy"] .card:hover {
+  box-shadow: var(--shadow);
+}
+:root[data-theme="burgundy"] h2 {
+  letter-spacing: -0.01em;
+}
+
 /* smooth switch between the two schemes */
 html.theme-switching,
 html.theme-switching * {

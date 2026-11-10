@@ -8,6 +8,7 @@ import CategoryIcon from "../components/CategoryIcon.jsx";
 import CatalogState from "../components/CatalogState.jsx";
 import CategoryTile from "../components/CategoryTile.jsx";
 import HeroSlider from "../components/HeroSlider.jsx";
+import Marquee from "../components/Marquee.jsx";
 import Icon from "../components/Icon.jsx";
 import { useCatalog } from "../catalog.jsx";
 import { shop } from "../data/shop.js";
@@ -56,6 +57,9 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* ---- moving ribbons: our story and current offers ---- */}
+      <Marquee />
 
       {/* ---- categories ---- */}
       <section className="section">

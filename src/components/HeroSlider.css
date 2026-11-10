@@ -1,6 +1,6 @@
 /* ---- home hero slider (HeroSlider.jsx) ---- */
 .hs {
-  --hs-h: clamp(560px, calc(100svh - 190px), 720px);
+  --hs-h: clamp(500px, calc(100svh - 270px), 640px);
   position: relative;
   min-height: var(--hs-h);
   overflow: hidden;
@@ -50,7 +50,7 @@
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(24px, 4vw, 64px);
-  padding-block: clamp(48px, 7vw, 88px) clamp(96px, 10vw, 120px);
+  padding-block: clamp(36px, 5vw, 64px) clamp(88px, 8vw, 104px);
 }
 
 /* text: each line rises in, one after another */
@@ -91,7 +91,7 @@
 .hs__title {
   margin: 16px 0 18px;
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5.4vw, 4.6rem);
+  font-size: clamp(2.3rem, 4.2vw, 3.7rem);
   font-weight: 600;
   line-height: 1.02;
   color: #fff;
@@ -110,7 +110,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: 26px;
 }
 .hs .hs__ghost {
   background: transparent;
@@ -149,7 +149,7 @@
 /* product imagery */
 .hs__media {
   position: relative;
-  height: min(520px, calc(var(--hs-h) - 150px));
+  height: min(460px, calc(var(--hs-h) - 130px));
 }
 .hs__float {
   position: absolute;
@@ -416,4 +416,83 @@
 /* keep the floating products inside their half of the slide */
 .hs__media {
   clip-path: inset(-40px -40px -40px 0);
+}
+
+/* burgundy theme: white slide with deep burgundy text; the products sit on a burgundy panel */
+:root[data-theme="burgundy"] .hs {
+  color: var(--ink);
+  background: #fff;
+}
+:root[data-theme="burgundy"] .hs__bg {
+  background:
+    radial-gradient(700px 420px at 0% 100%, rgba(110, 20, 35, 0.06), transparent 70%),
+    linear-gradient(180deg, #fff, #f7f5f4);
+}
+:root[data-theme="burgundy"] .hs__bg::after {
+  background: repeating-linear-gradient(115deg, rgba(110, 20, 35, 0.03) 0 1px, transparent 1px 22px);
+}
+:root[data-theme="burgundy"] .hs__media {
+  border-radius: 28px;
+  background:
+    radial-gradient(closest-side at 50% 50%, rgba(230, 198, 127, 0.28), transparent),
+    linear-gradient(140deg, var(--navy-deep), var(--navy) 55%, var(--navy-2));
+  box-shadow: 0 40px 70px -40px rgba(74, 11, 23, 0.7);
+  clip-path: none;
+  overflow: hidden;
+}
+:root[data-theme="burgundy"] .hs__eyebrow,
+:root[data-theme="burgundy"] .hs__title em {
+  color: var(--navy);
+}
+:root[data-theme="burgundy"] .hs__title {
+  color: var(--ink);
+}
+:root[data-theme="burgundy"] .hs__lead {
+  color: var(--muted);
+}
+:root[data-theme="burgundy"] .hs__points {
+  color: var(--ink-soft);
+}
+:root[data-theme="burgundy"] .hs__points .icon {
+  background: rgba(110, 20, 35, 0.1);
+  color: var(--navy);
+}
+:root[data-theme="burgundy"] .hs .btn--gold {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+:root[data-theme="burgundy"] .hs .btn--gold:hover {
+  background: var(--navy-2);
+  border-color: var(--navy-2);
+}
+:root[data-theme="burgundy"] .hs .hs__ghost {
+  color: var(--navy);
+  border-color: rgba(110, 20, 35, 0.45);
+}
+:root[data-theme="burgundy"] .hs .hs__ghost:hover {
+  background: var(--tint);
+  border-color: var(--navy);
+}
+:root[data-theme="burgundy"] .hs__dot,
+:root[data-theme="burgundy"] .hs__dot.is-active {
+  background: rgba(110, 20, 35, 0.14);
+}
+:root[data-theme="burgundy"] .hs__dot.is-active:not(:has(.hs__progress)),
+:root[data-theme="burgundy"] .hs__progress {
+  background: var(--navy);
+}
+:root[data-theme="burgundy"] .hs__count {
+  color: var(--muted);
+}
+:root[data-theme="burgundy"] .hs__arrow {
+  border-color: rgba(110, 20, 35, 0.25);
+  background: #fff;
+  color: var(--navy);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="burgundy"] .hs__arrow:hover {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
 }
